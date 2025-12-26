@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exam Schedule Planner</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f2f5;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+            border-bottom: 4px solid #1e3c72;
+        }
+
+        .header h1 {
+            font-size: 2.8em;
+            margin-bottom: 10px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .header p {
+            font-size: 1.15em;
+            opacity: 0.95;
+            font-weight: 300;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .section {
+            margin-bottom: 30px;
+        }
+
+        .section h2 {
+            color: #1e3c72;
+            margin-bottom: 25px;
+            font-size: 1.9em;
+            font-weight: 700;
+            border-bottom: 3px solid #e8eef5;
+            padding-bottom: 12px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        input, select {
+            padding: 12px 15px;
+            border: 2px solid #dce1e8;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #2a5298;
+            box-shadow: 0 0 0 3px rgba(42, 82, 152, 0.1);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 14px 32px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(30, 60, 114, 0.3);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            margin-left: 10px;
+        }
+
+        .exam-list {
+            display: grid;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .exam-card {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            border: 1px solid #e8eef5;
+            border-left: 5px solid #2a5298;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .exam-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .exam-info {
+            flex-grow: 1;
+        }
+
+        .exam-info h3 {
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .exam-info p {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .days-left {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 700;
+            text-align: center;
+            min-width: 110px;
+            font-size: 0.95em;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .delete-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+
+        .delete-btn:hover {
+            background: #c82333;
+        }
+
+        .timetable {
+            background: #f8fafc;
+            padding: 25px;
+            border-radius: 12px;
+            margin-top: 25px;
+            border: 1px solid #e8eef5;
+        }
+
+        .day-plan {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 18px;
+            border: 1px solid #e8eef5;
+            border-left: 4px solid #28a745;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .day-plan h4 {
+            color: #1e3c72;
+            margin-bottom: 14px;
+            font-size: 1.15em;
+            font-weight: 700;
+        }
+
+        .subject-slot {
+            background: linear-gradient(135deg, #e3f2fd 0%, #f0f7ff 100%);
+            padding: 14px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            border: 1px solid #bbdefb;
+            transition: all 0.2s;
+        }
+
+        .subject-slot:hover {
+            background: linear-gradient(135deg, #d1e9fc 0%, #e3f2fd 100%);
+            transform: translateX(5px);
+        }
+
+        .subject-name {
+            font-weight: 700;
+            color: #1e3c72;
+            font-size: 1.05em;
+        }
+
+        .time-slot {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .priority-high { border-left-color: #dc3545; }
+        .priority-medium { border-left-color: #ffc107; }
+        .priority-low { border-left-color: #28a745; }
+    </style>
+</head>
+<body>
+    <body>
+
+<!-- 🔗 NAVBAR LINKS START -->
+<div class="navbar">
+    <h2>StudentAI</h2>
+    <div>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="planner.html">Planner</a>
+        <a href="exam.html">Exams</a>
+        <a href="hackathon.html">Hackathons</a>
+        <a href="timetable.html">Timetable</a>
+        <a href="index.html">Logout</a>
+    </div>
+</div>
+<!-- 🔗 NAVBAR LINKS END -->
+
+<!-- YOUR EXISTING EXAM CODE BELOW -->
+<div class="container">
+
+    <div class="container">
+        <div class="header">
+            <h1>📚 Exam Schedule Planner</h1>
+            <p>Plan your preparation effectively and ace your exams!</p>
+        </div>
+
+        <div class="content">
+            <div class="section">
+                <h2>Add Your Exams</h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="subject">Subject Name</label>
+                        <select id="subject">
+                            <option value="">Select a subject</option>
+                            <optgroup label="Mathematics & Sciences">
+                                <option value="Mathematics">Mathematics</option>
+                                <option value="Physics">Physics</option>
+                                <option value="Chemistry">Chemistry</option>
+                                <option value="Biology">Biology</option>
+                                <option value="Statistics">Statistics</option>
+                                <option value="Calculus">Calculus</option>
+                                <option value="Algebra">Algebra</option>
+                                <option value="Geometry">Geometry</option>
+                            </optgroup>
+                            <optgroup label="Languages & Literature">
+                                <option value="English">English</option>
+                                <option value="Spanish">Spanish</option>
+                                <option value="French">French</option>
+                                <option value="German">German</option>
+                                <option value="Hindi">Hindi</option>
+                                <option value="Literature">Literature</option>
+                                <option value="Linguistics">Linguistics</option>
+                            </optgroup>
+                            <optgroup label="Social Sciences">
+                                <option value="History">History</option>
+                                <option value="Geography">Geography</option>
+                                <option value="Economics">Economics</option>
+                                <option value="Political Science">Political Science</option>
+                                <option value="Psychology">Psychology</option>
+                                <option value="Sociology">Sociology</option>
+                                <option value="Anthropology">Anthropology</option>
+                            </optgroup>
+                            <optgroup label="Computer Science & Engineering">
+                                <option value="Computer Science">Computer Science</option>
+                                <option value="Data Structures">Data Structures</option>
+                                <option value="Algorithms">Algorithms</option>
+                                <option value="Database Management">Database Management</option>
+                                <option value="Operating Systems">Operating Systems</option>
+                                <option value="Computer Networks">Computer Networks</option>
+                                <option value="Software Engineering">Software Engineering</option>
+                                <option value="Mechanical Engineering">Mechanical Engineering</option>
+                                <option value="Electrical Engineering">Electrical Engineering</option>
+                                <option value="Civil Engineering">Civil Engineering</option>
+                            </optgroup>
+                            <optgroup label="Business & Commerce">
+                                <option value="Accounting">Accounting</option>
+                                <option value="Business Studies">Business Studies</option>
+                                <option value="Finance">Finance</option>
+                                <option value="Marketing">Marketing</option>
+                                <option value="Management">Management</option>
+                                <option value="Entrepreneurship">Entrepreneurship</option>
+                            </optgroup>
+                            <optgroup label="Arts & Humanities">
+                                <option value="Philosophy">Philosophy</option>
+                                <option value="Fine Arts">Fine Arts</option>
+                                <option value="Music">Music</option>
+                                <option value="Drama">Drama</option>
+                                <option value="Art History">Art History</option>
+                            </optgroup>
+                            <optgroup label="Other Subjects">
+                                <option value="Physical Education">Physical Education</option>
+                                <option value="Environmental Science">Environmental Science</option>
+                                <option value="Law">Law</option>
+                                <option value="Medicine">Medicine</option>
+                                <option value="Nursing">Nursing</option>
+                                <option value="Pharmacy">Pharmacy</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="examDate">Exam Date</label>
+                        <input type="date" id="examDate">
+                    </div>
+                    <div class="form-group">
+                        <label for="difficulty">Difficulty Level</label>
+                        <select id="difficulty">
+                            <option value="easy">Easy</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="hard">Hard</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="hoursNeeded">Hours Needed</label>
+                        <input type="number" id="hoursNeeded" placeholder="e.g., 20" min="1">
+                    </div>
+                </div>
+                <button class="btn" onclick="addExam()">Add Exam</button>
+                <button class="btn btn-secondary" onclick="generateTimetable()">Generate Study Plan</button>
+            </div>
+
+            <div class="section">
+                <h2>Your Exam Schedule</h2>
+                <div id="examList" class="exam-list"></div>
+            </div>
+
+            <div class="section" id="timetableSection" style="display: none;">
+                <h2>Your Study Timetable</h2>
+                <div id="timetable" class="timetable"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let exams = [];
+
+        function addExam() {
+            const subject = document.getElementById('subject').value;
+            const examDate = document.getElementById('examDate').value;
+            const difficulty = document.getElementById('difficulty').value;
+            const hoursNeeded = document.getElementById('hoursNeeded').value;
+
+            if (!subject || !examDate || !hoursNeeded) {
+                alert('Please fill all fields!');
+                return;
+            }
+
+            const exam = {
+                id: Date.now(),
+                subject,
+                examDate,
+                difficulty,
+                hoursNeeded: parseInt(hoursNeeded)
+            };
+
+            exams.push(exam);
+            exams.sort((a, b) => new Date(a.examDate) - new Date(b.examDate));
+            
+            document.getElementById('subject').value = '';
+            document.getElementById('examDate').value = '';
+            document.getElementById('hoursNeeded').value = '';
+            
+            displayExams();
+        }
+
+        function displayExams() {
+            const examList = document.getElementById('examList');
+            
+            if (exams.length === 0) {
+                examList.innerHTML = '<div class="empty-state">No exams added yet. Add your first exam to get started!</div>';
+                return;
+            }
+
+            examList.innerHTML = exams.map(exam => {
+                const today = new Date();
+                const examDateObj = new Date(exam.examDate);
+                const daysLeft = Math.ceil((examDateObj - today) / (1000 * 60 * 60 * 24));
+                
+                let priorityClass = 'priority-low';
+                if (daysLeft <= 7) priorityClass = 'priority-high';
+                else if (daysLeft <= 14) priorityClass = 'priority-medium';
+
+                return `
+                    <div class="exam-card ${priorityClass}">
+                        <div class="exam-info">
+                            <h3>${exam.subject}</h3>
+                            <p>Date: ${new Date(exam.examDate).toLocaleDateString()}</p>
+                            <p>Difficulty: ${exam.difficulty.charAt(0).toUpperCase() + exam.difficulty.slice(1)} | Hours needed: ${exam.hoursNeeded}</p>
+                        </div>
+                        <div class="days-left">
+                            ${daysLeft > 0 ? daysLeft + ' days left' : 'Today!'}
+                        </div>
+                        <button class="delete-btn" onclick="deleteExam(${exam.id})">Delete</button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function deleteExam(id) {
+            exams = exams.filter(exam => exam.id !== id);
+            displayExams();
+        }
+
+        function generateTimetable() {
+            if (exams.length === 0) {
+                alert('Please add at least one exam first!');
+                return;
+            }
+
+            const timetableSection = document.getElementById('timetableSection');
+            const timetable = document.getElementById('timetable');
+            timetableSection.style.display = 'block';
+
+            const today = new Date();
+            const studyPlans = [];
+
+            exams.forEach(exam => {
+                const examDate = new Date(exam.examDate);
+                const daysAvailable = Math.max(1, Math.ceil((examDate - today) / (1000 * 60 * 60 * 24)));
+                const hoursPerDay = Math.ceil(exam.hoursNeeded / daysAvailable);
+
+                for (let i = 0; i < daysAvailable; i++) {
+                    const studyDate = new Date(today);
+                    studyDate.setDate(studyDate.getDate() + i);
+                    
+                    studyPlans.push({
+                        date: studyDate,
+                        subject: exam.subject,
+                        hours: hoursPerDay,
+                        examDate: exam.examDate
+                    });
+                }
+            });
+
+            studyPlans.sort((a, b) => a.date - b.date);
+
+            const groupedByDate = studyPlans.reduce((acc, plan) => {
+                const dateKey = plan.date.toDateString();
+                if (!acc[dateKey]) acc[dateKey] = [];
+                acc[dateKey].push(plan);
+                return acc;
+            }, {});
+
+            timetable.innerHTML = Object.entries(groupedByDate).map(([date, plans]) => {
+                const subjects = plans.map(plan => `
+                    <div class="subject-slot">
+                        <span class="subject-name">${plan.subject}</span>
+                        <span class="time-slot">${plan.hours} hours</span>
+                    </div>
+                `).join('');
+
+                return `
+                    <div class="day-plan">
+                        <h4>${new Date(date).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</h4>
+                        ${subjects}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        displayExams();
+    </script>
+</body>
+</html>
