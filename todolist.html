@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>To-Do List | StudentAI</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background-color: #f5f6fa;
+    }
+
+    /* NAVBAR */
+    .navbar {
+        background: linear-gradient(90deg, #1e1e2f, #2a2340);
+        color: white;
+        padding: 20px 60px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .navbar a {
+        color: white;
+        margin-left: 20px;
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    /* TODO CONTAINER */
+    .todo-container {
+        max-width: 650px;
+        margin: 60px auto;
+        background: white;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+    }
+
+    .todo-container h2 {
+        text-align: center;
+        color: #1e1e2f;
+        margin-bottom: 20px;
+    }
+
+    .todo-input {
+        display: grid;
+        grid-template-columns: 1fr 160px 100px;
+        gap: 10px;
+        margin-bottom: 25px;
+    }
+
+    .todo-input input,
+    .todo-input button {
+        padding: 12px;
+        font-size: 15px;
+        border-radius: 6px;
+    }
+
+    .todo-input input {
+        border: 1px solid #ccc;
+    }
+
+    .todo-input button {
+        background-color: #1e1e2f;
+        color: white;
+        border: none;
+        cursor: pointer;
+    }
+
+    ul {
+        list-style: none;
+        padding: 0;
+    }
+
+    li {
+        background: #f7f8fc;
+        padding: 15px;
+        margin-bottom: 12px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-radius: 6px;
+    }
+
+    .task-info {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .task-info span {
+        font-size: 16px;
+        font-weight: 500;
+    }
+
+    .task-info small {
+        color: #666;
+        margin-top: 3px;
+    }
+
+    li button {
+        background: crimson;
+        color: white;
+        border: none;
+        padding: 6px 12px;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    /* FOOTER */
+    footer {
+        background: linear-gradient(90deg, #1e1e2f, #2a2340);
+        color: white;
+        text-align: center;
+        padding: 15px;
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+    }
+</style>
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<div class="navbar">
+    <h2>StudentAI</h2>
+    <div>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="planner.html">Planner</a>
+        <a href="exam.html">Exams</a>
+        <a href="hackathon.html">Hackathons</a>
+        <a href="profile.html">Profile</a>
+        <a href="settings.html">Settings</a>
+        <a href="index.html">Logout</a>
+    </div>
+</div>
+
+<!-- TODO LIST -->
+<div class="todo-container">
+    <h2>My To-Do List</h2>
+
+    <div class="todo-input">
+        <input type="text" id="taskInput" placeholder="Enter task..." />
+        <input type="date" id="dateInput" />
+        <button onclick="addTask()">Add</button>
+    </div>
+
+    <ul id="taskList"></ul>
+</div>
+
+<!-- FOOTER -->
+<footer>
+    © 2025 StudentAI Dashboard
+</footer>
+
+<script>
+    function addTask() {
+        const taskInput = document.getElementById("taskInput");
+        const dateInput = document.getElementById("dateInput");
+
+        const task = taskInput.value.trim();
+        const dueDate = dateInput.value;
+
+        if (task === "") return;
+
+        const li = document.createElement("li");
+
+        li.innerHTML = `
+            <div class="task-info">
+                <span>${task}</span>
+                <small>Due: ${dueDate || "No due date"}</small>
+            </div>
+            <button onclick="this.parentElement.remove()">Delete</button>
+        `;
+
+        document.getElementById("taskList").appendChild(li);
+
+        taskInput.value = "";
+        dateInput.value = "";
+    }
+</script>
+
+</body>
+</html>
