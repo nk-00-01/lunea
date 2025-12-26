@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Semester Details | StudentAI</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background-color: #f5f6fa;
+    }
+
+    /* NAVBAR */
+    .navbar {
+        background: linear-gradient(90deg, #1e1e2f, #2a2340);
+        color: white;
+        padding: 20px 60px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .navbar a {
+        color: white;
+        text-decoration: none;
+        margin-left: 20px;
+        font-weight: 500;
+    }
+
+    /* CONTAINER */
+    .container {
+        max-width: 800px;
+        margin: 60px auto;
+        background: white;
+        padding: 35px;
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+    }
+
+    .container h2 {
+        text-align: center;
+        color: #1e1e2f;
+        margin-bottom: 30px;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+
+    label {
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 6px;
+        display: block;
+    }
+
+    select {
+        width: 100%;
+        padding: 12px;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+        font-size: 15px;
+    }
+
+    .full-width {
+        grid-column: span 2;
+    }
+
+    .submit-btn {
+        margin-top: 30px;
+        width: 100%;
+        padding: 14px;
+        background-color: #1e1e2f;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+    footer {
+        background: linear-gradient(90deg, #1e1e2f, #2a2340);
+        color: white;
+        text-align: center;
+        padding: 15px;
+        margin-top: 80px;
+    }
+</style>
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<div class="navbar">
+    <h2>StudentAI</h2>
+    <div>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="planner.html">Planner</a>
+        <a href="exam.html">Exams</a>
+        <a href="hackathon.html">Hackathons</a>
+        <a href="profile.html">Profile</a>
+        <a href="settings.html">Settings</a>
+        <a href="index.html">Logout</a>
+    </div>
+</div>
+
+<!-- FORM -->
+<div class="container">
+    <h2>Semester Academic Details</h2>
+
+    <form>
+
+        <div class="form-grid">
+
+            <div>
+                <label>Year</label>
+                <select required>
+                    <option value="">Select Year</option>
+                    <option>1</option>
+                    <option>2</option>
+                    <option>3</option>
+                    <option>4</option>
+                </select>
+            </div>
+
+            <div>
+                <label>Semester</label>
+                <select required>
+                    <option value="">Select Semester</option>
+                    <option>1</option>
+                    <option>2</option>
+                    <option>3</option>
+                    <option>4</option>
+                    <option>5</option>
+                    <option>6</option>
+                    <option>7</option>
+                    <option>8</option>
+                </select>
+            </div>
+
+            <div>
+                <label>Subject</label>
+                <select required>
+                    <option value="">Select Subject</option>
+                    <option>Python</option>
+                    <option>C</option>
+                    <option>OOP with C++</option>
+                    <option>DS with C</option>
+                    <option>Java</option>
+                    <option>HTML</option>
+                    <option>CSS</option>
+                </select>
+            </div>
+
+            <div>
+                <label>Credits</label>
+                <select required>
+                    <option value="">Select Credits</option>
+                    <option>1</option>
+                    <option>2</option>
+                    <option>3</option>
+                    <option>4</option>
+                </select>
+            </div>
+
+            <div class="full-width">
+                <label>Grade</label>
+                <select required>
+                    <option value="">Select Grade</option>
+                    <option>A+</option>
+                    <option>A</option>
+                    <option>B</option>
+                    <option>C</option>
+                    <option>D</option>
+                    <option>F</option>
+                </select>
+            </div>
+
+        </div>
+
+        <button type="submit" class="submit-btn">Save Semester Details</button>
+
+    </form>
+</div>
+
+<!-- FOOTER -->
+<footer>
+    © 2025 StudentAI Dashboard
+</footer>
+
+</body>
+</html>
