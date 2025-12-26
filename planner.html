@@ -1,807 +1,272 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FocusFlow | Professional Study Partner</title>
-    <style>
-        /* --- CSS VARIABLES FOR PROFESSIONAL THEME --- */
-        :root {
-            --bg-body: #f1f5f9;         /* Light Slate Background */
-            --bg-surface: #ffffff;      /* Pure White Surface */
-            --primary: #2563eb;         /* Professional Blue */
-            --primary-dark: #1e40af;
-            --text-main: #1e293b;       /* Dark Slate Text */
-            --text-muted: #64748b;      /* Muted Text */
-            --border: #e2e8f0;          /* Light Border */
-            
-            /* Status Colors */
-            --danger: #ef4444;
-            --warning: #f59e0b;
-            --success: #10b981;
-            
-            /* Shadows */
-            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-        }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>FocusFlow | StudentAI Dashboard</title>
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<style>
+/* ---------- NAVBAR ---------- */
+.topbar {
+    background: #13121b;
+    color: #fff;
+    padding: 14px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 999;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+}
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-weight: 800;
+    font-size: 20px;
+}
+.logo-mark {
+    width: 36px;
+    height: 36px;
+    background: #ffffff10;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.topbar nav {
+    display: flex;
+    gap: 20px;
+}
+.topbar a {
+    color: rgba(255,255,255,0.85);
+    text-decoration: none;
+    font-weight: 600;
+    padding: 6px 8px;
+    border-radius: 6px;
+}
+.topbar a:hover { background:#1e1e2f; color:#fff; }
+.topbar a.active {
+    background: linear-gradient(90deg,#2b6ef6,#7c3aed);
+    color: #fff;
+}
 
-        body {
-            font-family: 'Inter', system-ui, -apple-system, sans-serif;
-            background-color: var(--bg-body);
-            color: var(--text-main);
-            min-height: 100vh;
-            padding: 2rem;
-            line-height: 1.5;
-        }
+/* ---------- GLOBAL ---------- */
+:root{
+    --primary:#2563eb;
+    --bg:#f1f5f9;
+    --surface:#ffffff;
+    --border:#e2e8f0;
+    --text:#1e293b;
+    --muted:#64748b;
+    --shadow:0 4px 6px -1px rgba(0,0,0,0.1);
+}
+* { box-sizing:border-box; margin:0; padding:0; }
+body {
+    font-family: Inter, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+}
 
-        /* --- LAYOUT --- */
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: 380px 1fr;
-            gap: 2rem;
-            align-items: start;
-        }
+/* ---------- LAYOUT ---------- */
+.container {
+    max-width: 1400px;
+    margin: 1.5rem auto;
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    gap: 2rem;
+    padding: 0 1.5rem;
+}
+.sidebar, .main {
+    background: var(--surface);
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: var(--shadow);
+    border:1px solid var(--border);
+}
 
-        /* --- SIDEBAR --- */
-        .sidebar {
-            background: var(--bg-surface);
-            border-radius: 12px;
-            padding: 2rem;
-            box-shadow: var(--shadow-md);
-            border: 1px solid var(--border);
-            position: sticky;
-            top: 2rem;
-        }
+/* ---------- SIDEBAR ---------- */
+.logo {
+    display:flex;
+    align-items:center;
+    gap:12px;
+    margin-bottom:1.5rem;
+}
+.logo-icon {
+    width:40px;
+    height:40px;
+    background:var(--primary);
+    color:#fff;
+    border-radius:8px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+.form-group {
+    margin-bottom:1.25rem;
+}
+label {
+    font-weight:600;
+    font-size:14px;
+}
+input, select {
+    width:100%;
+    padding:10px;
+    margin-top:6px;
+    border-radius:8px;
+    border:1px solid var(--border);
+}
+.btn-primary {
+    width:100%;
+    padding:12px;
+    border:none;
+    border-radius:8px;
+    background:var(--primary);
+    color:#fff;
+    font-weight:700;
+    cursor:pointer;
+}
 
-        .main-content {
-            background: var(--bg-surface);
-            border-radius: 12px;
-            padding: 2.5rem;
-            box-shadow: var(--shadow-md);
-            border: 1px solid var(--border);
-            min-height: 85vh;
-        }
+/* ---------- DASHBOARD ---------- */
+.dashboard-grid {
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:1.5rem;
+}
+.dash-card {
+    background:#fff;
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:1.5rem;
+    box-shadow:var(--shadow);
+}
+.dash-card h4 { margin-bottom:8px; }
+.dash-value {
+    font-size:32px;
+    font-weight:800;
+    color:var(--primary);
+}
+.dash-muted { color:var(--muted); font-size:14px; }
 
-        /* --- HEADER & LOGO --- */
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 2.5rem;
-            padding-bottom: 1.5rem;
-            border-bottom: 1px solid var(--border);
-        }
+.actions {
+    margin-top:2rem;
+    display:flex;
+    gap:1rem;
+    flex-wrap:wrap;
+}
+.actions button {
+    padding:10px 16px;
+    border:none;
+    border-radius:8px;
+    font-weight:600;
+    cursor:pointer;
+    color:#fff;
+}
+.actions .planner { background:#2563eb; }
+.actions .exams { background:#7c3aed; }
+.actions .hack { background:#0ea5e9; }
 
-        .logo-icon {
-            width: 40px;
-            height: 40px;
-            background: var(--primary);
-            color: white;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-        }
-
-        .logo h1 {
-            font-size: 1.25rem;
-            color: var(--text-main);
-            font-weight: 700;
-            letter-spacing: -0.5px;
-        }
-
-        /* --- FORMS --- */
-        .form-section {
-            margin-bottom: 2rem;
-        }
-
-        .form-section h3 {
-            color: var(--text-main);
-            font-size: 0.95rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin-bottom: 1rem;
-            font-weight: 700;
-        }
-
-        .form-group {
-            margin-bottom: 1.25rem;
-        }
-
-        label {
-            display: block;
-            font-weight: 500;
-            margin-bottom: 0.5rem;
-            color: var(--text-muted);
-            font-size: 0.875rem;
-        }
-
-        input, select, textarea {
-            width: 100%;
-            padding: 0.75rem 1rem;
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            font-size: 0.95rem;
-            color: var(--text-main);
-            background-color: #f8fafc;
-            transition: all 0.2s;
-            font-family: inherit;
-        }
-
-        input:focus, select:focus, textarea:focus {
-            outline: none;
-            border-color: var(--primary);
-            background-color: #fff;
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-        }
-
-        textarea {
-            resize: vertical;
-            min-height: 80px;
-        }
-
-        /* --- BUTTONS --- */
-        .btn-primary {
-            width: 100%;
-            background-color: var(--primary);
-            color: white;
-            padding: 1rem;
-            border: none;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background-color 0.2s;
-            margin-top: 1rem;
-        }
-
-        .btn-primary:hover {
-            background-color: var(--primary-dark);
-        }
-
-        /* --- WELCOME STATE --- */
-        .welcome-state {
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            color: var(--text-muted);
-            padding: 4rem;
-        }
-
-        .welcome-state .icon {
-            font-size: 64px;
-            margin-bottom: 1.5rem;
-            opacity: 0.5;
-            background: #f1f5f9;
-            width: 120px;
-            height: 120px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-        }
-
-        .welcome-state h3 {
-            font-size: 1.75rem;
-            color: var(--text-main);
-            margin-bottom: 1rem;
-        }
-
-        /* --- DASHBOARD / RESULTS --- */
-        .study-plan {
-            display: none;
-            animation: fadeIn 0.4s ease;
-        }
-
-        .study-plan.active {
-            display: block;
-        }
-
-        .header {
-            margin-bottom: 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-        }
-
-        .header h2 {
-            font-size: 2rem;
-            color: var(--text-main);
-            font-weight: 800;
-            letter-spacing: -1px;
-        }
-
-        .header p {
-            color: var(--text-muted);
-        }
-
-        /* --- SUMMARY CARD --- */
-        .plan-summary {
-            background: #1e293b; /* Dark Slate Blue - Professional Contrast */
-            color: white;
-            padding: 2rem;
-            border-radius: 12px;
-            margin-bottom: 2.5rem;
-            box-shadow: var(--shadow-md);
-        }
-
-        .summary-stats {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 2rem;
-            margin-top: 1.5rem;
-            border-top: 1px solid rgba(255,255,255,0.1);
-            padding-top: 1.5rem;
-        }
-
-        .stat-card .label {
-            font-size: 0.85rem;
-            color: #94a3b8;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin-bottom: 0.5rem;
-        }
-
-        .stat-card .value {
-            font-size: 2rem;
-            font-weight: 700;
-            color: white;
-        }
-
-        /* --- TASKS --- */
-        .priority-section {
-            margin-bottom: 2.5rem;
-        }
-
-        .priority-section h4 {
-            font-size: 1.1rem;
-            color: var(--text-main);
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .priority-badge {
-            font-size: 0.7rem;
-            padding: 2px 8px;
-            border-radius: 4px;
-            background: #e2e8f0;
-            color: #475569;
-            font-weight: 700;
-        }
-
-        .task-list {
-            display: grid;
-            gap: 1rem;
-        }
-
-        .task-card {
-            background: white;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 1.25rem;
-            transition: transform 0.2s, box-shadow 0.2s;
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .task-card:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
-            border-color: #cbd5e1;
-        }
-
-        /* Priority Colors (Left Border Strip) */
-        .priority-high .task-card { border-left: 4px solid var(--danger); }
-        .priority-medium .task-card { border-left: 4px solid var(--warning); }
-        .priority-low .task-card { border-left: 4px solid var(--success); }
-
-        .task-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 0.75rem;
-        }
-
-        .task-title {
-            font-weight: 600;
-            color: var(--text-main);
-            font-size: 1.1rem;
-        }
-
-        .task-time {
-            background: #f1f5f9;
-            color: var(--text-main);
-            padding: 4px 10px;
-            border-radius: 6px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            border: 1px solid var(--border);
-        }
-
-        .task-description {
-            color: var(--text-muted);
-            font-size: 0.925rem;
-            margin-bottom: 1rem;
-        }
-
-        .task-meta {
-            margin-top: auto;
-            padding-top: 0.75rem;
-            border-top: 1px dashed var(--border);
-            display: flex;
-            gap: 1.5rem;
-            color: #64748b;
-            font-size: 0.85rem;
-        }
-
-        /* --- TIPS SECTION --- */
-        .tips-section {
-            background: #eff6ff;
-            border: 1px solid #bfdbfe;
-            color: #1e3a8a;
-            padding: 1.5rem;
-            border-radius: 8px;
-        }
-
-        .tips-section h4 {
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .tips-section ul li {
-            list-style: none;
-            margin-bottom: 0.75rem;
-            padding-left: 1.5rem;
-            position: relative;
-        }
-
-        .tips-section ul li::before {
-            content: "•";
-            color: var(--primary);
-            font-weight: bold;
-            font-size: 1.2rem;
-            position: absolute;
-            left: 0;
-            top: -5px;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* --- MOBILE RESPONSIVE --- */
-        @media (max-width: 1024px) {
-            .container { grid-template-columns: 1fr; }
-            .sidebar { position: static; margin-bottom: 2rem; }
-            .summary-stats { grid-template-columns: 1fr; gap: 1rem; }
-        }
-    </style>
+/* ---------- RESPONSIVE ---------- */
+@media(max-width:1024px){
+    .container{ grid-template-columns:1fr; }
+}
+</style>
 </head>
-<body>
- 
 
-<!-- 🔗 NAVBAR -->
-<div class="navbar">
-    <h2>StudentAI</h2>
-    <div>
+<body>
+
+<!-- NAVBAR -->
+<header class="topbar">
+    <div class="brand">
+        <div class="logo-mark">🎓</div>
+        <div>StudentAI</div>
+    </div>
+    <nav>
         <a href="dashboard.html">Dashboard</a>
-        <a href="planner.html">Planner</a>
+        <a href="planner.html" class="active">Planner</a>
         <a href="exam.html">Exams</a>
         <a href="hackathon.html">Hackathons</a>
-        <a href="timetable.html">Timetable</a>
-        <a href="index.html">Logout</a>
-    </div>
-</div>
+        <a href="profile.html">Profile</a>
+        <a href="settings.html">Settings</a>
+        <a href="#">Logout</a>
+    </nav>
+</header>
 
+<!-- MAIN LAYOUT -->
 <div class="container">
 
-        <aside class="sidebar">
-            <div class="logo">
-                <div class="logo-icon">🎓</div>
-                <h1>FocusFlow AI</h1>
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="logo">
+            <div class="logo-icon">🎓</div>
+            <h2>FocusFlow AI</h2>
+        </div>
+
+        <div class="form-group">
+            <label>Full Name</label>
+            <input placeholder="e.g. Alex Johnson">
+        </div>
+
+        <div class="form-group">
+            <label>Academic Branch</label>
+            <select>
+                <option>Select your major...</option>
+                <option>CSE</option>
+                <option>IT</option>
+                <option>ECE</option>
+                <option>Mechanical</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Daily Capacity</label>
+            <select>
+                <option>2 hours</option>
+                <option>3 hours</option>
+                <option selected>4 hours</option>
+                <option>5+ hours</option>
+            </select>
+        </div>
+
+        <button class="btn-primary">Generate Schedule</button>
+    </aside>
+
+    <!-- DASHBOARD MAIN -->
+    <main class="main">
+
+        <h2 style="margin-bottom:1.5rem;">Dashboard Overview</h2>
+
+        <div class="dashboard-grid">
+            <div class="dash-card">
+                <h4>📚 Study Hours</h4>
+                <div class="dash-value">4</div>
+                <div class="dash-muted">Today</div>
             </div>
 
-            <div class="form-section">
-                <h3>Student Profile</h3>
-                <div class="form-group">
-                    <label for="studentName">Full Name</label>
-                    <input type="text" id="studentName" placeholder="e.g. Alex Johnson">
-                </div>
-                <div class="form-group">
-                    <label for="branch">Academic Branch</label>
-                    <select id="branch">
-                        <option value="">Select your major...</option>
-                        <optgroup label="Engineering">
-                            <option value="Computer Science Engineering">Computer Science Engineering</option>
-                            <option value="Information Technology">Information Technology</option>
-                            <option value="Electronics & Communication">Electronics & Communication</option>
-                            <option value="Electrical Engineering">Electrical Engineering</option>
-                            <option value="Mechanical Engineering">Mechanical Engineering</option>
-                            <option value="Civil Engineering">Civil Engineering</option>
-                            <option value="Chemical Engineering">Chemical Engineering</option>
-                        </optgroup>
-                        <optgroup label="Medical">
-                            <option value="MBBS">MBBS</option>
-                            <option value="BDS">BDS</option>
-                            <option value="Nursing">Nursing</option>
-                            <option value="Pharmacy">Pharmacy</option>
-                            <option value="Physiotherapy">Physiotherapy</option>
-                        </optgroup>
-                        <optgroup label="Commerce">
-                            <option value="B.Com">B.Com</option>
-                            <option value="BBA">BBA</option>
-                            <option value="CA">Chartered Accountancy</option>
-                            <option value="Economics">Economics</option>
-                        </optgroup>
-                        <optgroup label="Science">
-                            <option value="B.Sc Physics">B.Sc Physics</option>
-                            <option value="B.Sc Chemistry">B.Sc Chemistry</option>
-                            <option value="B.Sc Mathematics">B.Sc Mathematics</option>
-                            <option value="B.Sc Biology">B.Sc Biology</option>
-                        </optgroup>
-                        <optgroup label="Arts & Humanities">
-                            <option value="BA English">BA English</option>
-                            <option value="BA Psychology">BA Psychology</option>
-                            <option value="BA History">BA History</option>
-                            <option value="Law">Law</option>
-                        </optgroup>
-                    </select>
-                </div>
+            <div class="dash-card">
+                <h4>📝 Pending Tasks</h4>
+                <div class="dash-value">3</div>
+                <div class="dash-muted">Assignments</div>
             </div>
 
-            <div class="form-section">
-                <h3>Configuration</h3>
-                <div class="form-group">
-                    <label for="studyHours">Daily Capacity</label>
-                    <select id="studyHours">
-                        <option value="2">2 hours</option>
-                        <option value="3">3 hours</option>
-                        <option value="4" selected>4 hours</option>
-                        <option value="5">5 hours</option>
-                        <option value="6">6 hours</option>
-                        <option value="7">7 hours</option>
-                        <option value="8">8 hours</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="studyStyle">Session Style</label>
-                    <select id="studyStyle">
-                        <option value="focused">Deep Work (90 min)</option>
-                        <option value="moderate">Standard (60 min)</option>
-                        <option value="short">Pomodoro (45 min)</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="peakTime">Peak Energy Time</label>
-                    <select id="peakTime">
-                        <option value="morning">Morning (6 AM - 10 AM)</option>
-                        <option value="midday">Midday (10 AM - 2 PM)</option>
-                        <option value="afternoon">Afternoon (2 PM - 6 PM)</option>
-                        <option value="evening">Evening (6 PM - 10 PM)</option>
-                    </select>
-                </div>
+            <div class="dash-card">
+                <h4>📅 Exams</h4>
+                <div class="dash-value">2</div>
+                <div class="dash-muted">Upcoming</div>
             </div>
 
-            <div class="form-section">
-                <h3>Priorities</h3>
-                <div class="form-group">
-                    <label for="upcomingExams">Upcoming Deadlines</label>
-                    <textarea id="upcomingExams" placeholder="e.g. Calculus midterm on Friday..."></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="weakSubjects">Focus Areas</label>
-                    <textarea id="weakSubjects" placeholder="e.g. Thermodynamics, Java..."></textarea>
-                </div>
+            <div class="dash-card">
+                <h4>🚀 Hackathons</h4>
+                <div class="dash-value">1</div>
+                <div class="dash-muted">Nearby</div>
             </div>
+        </div>
 
-            <button class="btn-primary" onclick="generateStudyPlan()">Generate Schedule</button>
-        </aside>
+       
 
-        <main class="main-content">
-            <div class="welcome-state" id="welcomeState">
-                <div class="icon">📊</div>
-                <h3>Welcome to FocusFlow</h3>
-                <p>Configure your academic profile on the left to generate a professional, optimized daily schedule.</p>
-            </div>
+    </main>
+</div>
 
-            <div class="study-plan" id="studyPlan">
-                <div class="header">
-                    <div>
-                        <h2>Daily Blueprint</h2>
-                        <p id="planDate">Today's Schedule</p>
-                    </div>
-                    </div>
-
-                <div class="plan-summary">
-                    <h3 id="summaryText">Overview</h3>
-                    <div class="summary-stats">
-                        <div class="stat-card">
-                            <div class="label">Total Focus Time</div>
-                            <div class="value" id="totalHours">0h</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="label">Sessions</div>
-                            <div class="value" id="totalSessions">0</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="label">Scheduled Breaks</div>
-                            <div class="value" id="totalBreaks">0min</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="priority-section priority-high">
-                    <h4>High Priority <span class="priority-badge">MUST DO</span></h4>
-                    <div class="task-list" id="highPriorityTasks"></div>
-                </div>
-
-                <div class="priority-section priority-medium">
-                    <h4>Medium Priority <span class="priority-badge">CORE</span></h4>
-                    <div class="task-list" id="mediumPriorityTasks"></div>
-                </div>
-
-                <div class="priority-section priority-low">
-                    <h4>Low Priority <span class="priority-badge">REVIEW</span></h4>
-                    <div class="task-list" id="lowPriorityTasks"></div>
-                </div>
-
-                <div class="tips-section">
-                    <h4>💡 Strategic Insights</h4>
-                    <ul id="tipsList"></ul>
-                </div>
-            </div>
-        </main>
-    </div>
-
-    <script>
-        const branchSubjects = {
-            "Computer Science Engineering": ["Data Structures", "Algorithms", "Operating Systems", "Computer Networks", "Database Management", "Software Engineering"],
-            "Information Technology": ["Programming", "Web Development", "Database Systems", "Network Security", "Cloud Computing", "Mobile Development"],
-            "Electronics & Communication": ["Digital Electronics", "Signals & Systems", "Communication Systems", "Microprocessors", "Control Systems", "VLSI Design"],
-            "Electrical Engineering": ["Circuit Theory", "Power Systems", "Electrical Machines", "Control Systems", "Power Electronics", "Electromagnetic Theory"],
-            "Mechanical Engineering": ["Thermodynamics", "Fluid Mechanics", "Machine Design", "Manufacturing Processes", "Heat Transfer", "Mechanics of Materials"],
-            "Civil Engineering": ["Structural Analysis", "Surveying", "Concrete Technology", "Geotechnical Engineering", "Transportation Engineering", "Hydraulics"],
-            "Chemical Engineering": ["Chemical Process", "Thermodynamics", "Fluid Mechanics", "Heat Transfer", "Mass Transfer", "Process Control"],
-            "MBBS": ["Anatomy", "Physiology", "Biochemistry", "Pharmacology", "Pathology", "Medicine"],
-            "BDS": ["Dental Anatomy", "Oral Pathology", "Periodontology", "Prosthodontics", "Oral Surgery", "Conservative Dentistry"],
-            "Nursing": ["Fundamentals of Nursing", "Medical-Surgical Nursing", "Community Health", "Pediatric Nursing", "Pharmacology", "Anatomy & Physiology"],
-            "Pharmacy": ["Pharmaceutical Chemistry", "Pharmacology", "Pharmaceutics", "Pharmacognosy", "Clinical Pharmacy", "Medicinal Chemistry"],
-            "B.Com": ["Accounting", "Business Economics", "Corporate Finance", "Taxation", "Business Statistics", "Business Law"],
-            "BBA": ["Business Management", "Marketing", "Human Resources", "Finance", "Operations Management", "Business Analytics"],
-            "CA": ["Accounting", "Taxation", "Audit", "Corporate Law", "Financial Management", "Cost Accounting"],
-            "B.Sc Physics": ["Classical Mechanics", "Quantum Mechanics", "Thermodynamics", "Electromagnetism", "Optics", "Modern Physics"],
-            "B.Sc Chemistry": ["Organic Chemistry", "Inorganic Chemistry", "Physical Chemistry", "Analytical Chemistry", "Environmental Chemistry", "Industrial Chemistry"],
-            "B.Sc Mathematics": ["Calculus", "Linear Algebra", "Differential Equations", "Real Analysis", "Abstract Algebra", "Probability & Statistics"],
-            "B.Sc Biology": ["Botany", "Zoology", "Microbiology", "Genetics", "Ecology", "Biotechnology"],
-            "BA English": ["Literature", "Grammar", "Creative Writing", "Literary Criticism", "Poetry", "Drama"],
-            "BA Psychology": ["Cognitive Psychology", "Social Psychology", "Developmental Psychology", "Abnormal Psychology", "Research Methods", "Statistics"],
-            "Law": ["Constitutional Law", "Criminal Law", "Contract Law", "Property Law", "Tort Law", "Legal Methods"]
-        };
-
-        function generateStudyPlan() {
-            const name = document.getElementById('studentName').value;
-            const branch = document.getElementById('branch').value;
-            const studyHours = parseInt(document.getElementById('studyHours').value);
-            const studyStyle = document.getElementById('studyStyle').value;
-            const peakTime = document.getElementById('peakTime').value;
-            const upcomingExams = document.getElementById('upcomingExams').value;
-            const weakSubjects = document.getElementById('weakSubjects').value;
-
-            if (!name || !branch) {
-                alert('Please fill in your name and branch!');
-                return;
-            }
-
-            // Hide welcome state and show study plan
-            document.getElementById('welcomeState').style.display = 'none';
-            document.getElementById('studyPlan').classList.add('active');
-
-            // Update summary
-            const today = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
-            document.getElementById('planDate').textContent = `Generated for ${today}`;
-            document.getElementById('summaryText').textContent = `Overview for ${name}`;
-
-            // Get session duration
-            let sessionDuration = 60;
-            let breakDuration = 15;
-            if (studyStyle === 'focused') {
-                sessionDuration = 90;
-                breakDuration = 20;
-            } else if (studyStyle === 'short') {
-                sessionDuration = 45;
-                breakDuration = 10;
-            }
-
-            const totalSessions = Math.floor(studyHours / (sessionDuration / 60));
-            const totalBreakTime = (totalSessions - 1) * breakDuration;
-
-            document.getElementById('totalHours').textContent = studyHours + 'h';
-            document.getElementById('totalSessions').textContent = totalSessions;
-            document.getElementById('totalBreaks').textContent = totalBreakTime + 'min';
-
-            // Get subjects for the branch
-            const subjects = branchSubjects[branch] || ["Subject 1", "Subject 2", "Subject 3"];
-            
-            // Parse weak subjects
-            const weakList = weakSubjects.split(',').map(s => s.trim().toLowerCase());
-
-            // Generate tasks
-            const tasks = generateTasks(subjects, weakList, upcomingExams, totalSessions, sessionDuration, peakTime);
-
-            // Distribute tasks by priority
-            const highPriority = tasks.filter(t => t.priority === 'high');
-            const mediumPriority = tasks.filter(t => t.priority === 'medium');
-            const lowPriority = tasks.filter(t => t.priority === 'low');
-
-            displayTasks('highPriorityTasks', highPriority);
-            displayTasks('mediumPriorityTasks', mediumPriority);
-            displayTasks('lowPriorityTasks', lowPriority);
-
-            // Generate tips
-            generateTips(studyStyle, peakTime, branch);
-        }
-
-        function generateTasks(subjects, weakList, upcomingExams, sessions, duration, peakTime) {
-            const tasks = [];
-            const times = generateTimeSlots(peakTime, sessions, duration);
-            
-            // Prioritize weak subjects and upcoming exams
-            const prioritySubjects = subjects.filter(s => 
-                weakList.some(weak => s.toLowerCase().includes(weak))
-            );
-
-            const hasUpcoming = upcomingExams && upcomingExams.trim() !== '';
-
-            let taskIndex = 0;
-
-            // High priority tasks (weak subjects + exam prep)
-            if (hasUpcoming) {
-                tasks.push({
-                    title: "Exam Preparation",
-                    description: `Focus on topics for your upcoming test: ${upcomingExams.substring(0, 100)}${upcomingExams.length > 100 ? '...' : ''}`,
-                    time: times[taskIndex++] || "TBD",
-                    duration: duration + ' min',
-                    subject: 'Exam Prep',
-                    priority: 'high'
-                });
-            }
-
-            for (let i = 0; i < Math.min(prioritySubjects.length, 2); i++) {
-                if (taskIndex >= sessions) break;
-                tasks.push({
-                    title: prioritySubjects[i],
-                    description: `Deep dive into weak areas. Focus on problem-solving and concept clarity.`,
-                    time: times[taskIndex++],
-                    duration: duration + ' min',
-                    subject: prioritySubjects[i],
-                    priority: 'high'
-                });
-            }
-
-            // Medium priority tasks (core subjects)
-            const coreSubjects = subjects.filter(s => !prioritySubjects.includes(s));
-            for (let i = 0; i < Math.min(coreSubjects.length, 3); i++) {
-                if (taskIndex >= sessions) break;
-                tasks.push({
-                    title: coreSubjects[i],
-                    description: `Regular study session covering lectures and textbook material.`,
-                    time: times[taskIndex++],
-                    duration: duration + ' min',
-                    subject: coreSubjects[i],
-                    priority: 'medium'
-                });
-            }
-
-            // Low priority tasks (revision, practice)
-            while (taskIndex < sessions) {
-                const subject = subjects[taskIndex % subjects.length];
-                tasks.push({
-                    title: `Practice Problems - ${subject}`,
-                    description: `Solve practice questions and previous year problems.`,
-                    time: times[taskIndex++],
-                    duration: duration + ' min',
-                    subject: subject,
-                    priority: 'low'
-                });
-            }
-
-            return tasks;
-        }
-
-        function generateTimeSlots(peakTime, sessions, duration) {
-            const slots = [];
-            let startHour;
-
-            switch(peakTime) {
-                case 'morning': startHour = 6; break;
-                case 'midday': startHour = 10; break;
-                case 'afternoon': startHour = 14; break;
-                case 'evening': startHour = 18; break;
-                default: startHour = 9;
-            }
-
-            let currentHour = startHour;
-            let currentMin = 0;
-
-            for (let i = 0; i < sessions; i++) {
-                const endMin = currentMin + duration;
-                const endHour = currentHour + Math.floor(endMin / 60);
-                const finalMin = endMin % 60;
-
-                slots.push(`${formatTime(currentHour, currentMin)} - ${formatTime(endHour, finalMin)}`);
-
-                // Add break time for next session
-                const breakMin = 15;
-                currentMin = finalMin + breakMin;
-                currentHour = endHour + Math.floor(currentMin / 60);
-                currentMin = currentMin % 60;
-            }
-
-            return slots;
-        }
-
-        function formatTime(hour, min) {
-            const period = hour >= 12 ? 'PM' : 'AM';
-            const displayHour = hour > 12 ? hour - 12 : (hour === 0 ? 12 : hour);
-            return `${displayHour}:${min.toString().padStart(2, '0')} ${period}`;
-        }
-
-        function displayTasks(containerId, tasks) {
-            const container = document.getElementById(containerId);
-            
-            if (tasks.length === 0) {
-                container.innerHTML = '<p style="color: #94a3b8; font-size: 0.9rem; font-style: italic;">No tasks assigned to this tier today.</p>';
-                return;
-            }
-
-            container.innerHTML = tasks.map(task => `
-                <div class="task-card">
-                    <div class="task-header">
-                        <div class="task-title">${task.title}</div>
-                        <div class="task-time">${task.time}</div>
-                    </div>
-                    <div class="task-description">${task.description}</div>
-                    <div class="task-meta">
-                        <span>⏱️ ${task.duration}</span>
-                        <span>📚 ${task.subject}</span>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function generateTips(studyStyle, peakTime, branch) {
-            const tips = [
-                `Take regular breaks between sessions to maintain focus and prevent burnout.`,
-                `Use the Pomodoro technique during your ${studyStyle} sessions for better concentration.`,
-                `Your peak productivity time is in the ${peakTime}. Schedule difficult topics then.`,
-                `Practice active recall by testing yourself without looking at notes.`,
-                `Create mind maps and visual diagrams for complex ${branch} concepts.`,
-                `Join study groups or online forums related to ${branch} for peer learning.`,
-                `Review your notes within 24 hours of learning for better retention.`
-            ];
-
-            document.getElementById('tipsList').innerHTML = tips.map(tip => `<li>${tip}</li>`).join('');
-        }
-    </script>
 </body>
-
 </html>
