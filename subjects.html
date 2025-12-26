@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Subjects | StudentAI</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f4f6fb;
+        }
+
+        /* NAVBAR (Your Code) */
+        .navbar { 
+            background-color: #1e1e2f;
+            color: white;
+            padding: 20px 60px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            margin-left: 20px;
+            font-weight: 500;
+        }
+
+        /* SUBJECT FORM */
+        .container {
+            max-width: 600px;
+            margin: 60px auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        h3 {
+            color: #1e1e2f;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .subject-input {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .subject-input input {
+            flex: 1;
+            padding: 10px;
+            font-size: 16px;
+        }
+
+        .subject-input button {
+            padding: 10px 15px;
+            background-color: #1e1e2f;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: #1e1e2f;
+            color: white;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <div class="navbar">
+        <h2>StudentAI</h2>
+        <div>
+            <a href="dashboard.html">Dashboard</a>
+            <a href="planner.html">Planner</a>
+            <a href="exam.html">Exams</a>
+            <a href="hackathon.html">Hackathons</a>
+            <a href="profile.html">Profile</a>
+            <a href="settings.html">Settings</a>
+            <a href="index.html">Logout</a>
+        </div>
+    </div>
+
+    <!-- SUBJECT FORM -->
+    <div class="container">
+        <h3>Enter Subjects You Are Pursuing</h3>
+
+        <form>
+            <div id="subjects">
+                <div class="subject-input">
+                    <input type="text" placeholder="Enter subject name" required>
+                    <button type="button" onclick="addSubject()">+</button>
+                </div>
+            </div>
+
+            <button type="submit" class="submit-btn">Save Subjects</button>
+        </form>
+    </div>
+
+    <script>
+        function addSubject() {
+            const div = document.createElement("div");
+            div.className = "subject-input";
+            div.innerHTML = `
+                <input type="text" placeholder="Enter subject name" required>
+                <button type="button" onclick="this.parentElement.remove()">−</button>
+            `;
+            document.getElementById("subjects").appendChild(div);
+        }
+    </script>
+
+</body>
+</html>
