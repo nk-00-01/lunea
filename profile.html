@@ -1,22 +1,134 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Profile</title>
-    <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <title>Student Profile</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f8;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .profile-container {
+            width: 60%;
+            margin: 30px auto;
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        .profile-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .profile-header img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 3px solid #2c3e50;
+        }
+
+        .profile-header h2 {
+            margin: 10px 0 5px;
+        }
+
+        .profile-form label {
+            display: block;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        .profile-form input,
+        .profile-form select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        .btn {
+            margin-top: 20px;
+            padding: 12px;
+            width: 100%;
+            background-color: #2c3e50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background-color: #34495e;
+        }
+
+        footer {
+            text-align: center;
+            padding: 10px;
+            background-color: #2c3e50;
+            color: white;
+            margin-top: 40px;
+        }
+    </style>
 </head>
 <body>
 
-<div class="navbar">
-    <h2>Profile</h2>
-    <a href="dashboard.html">Back</a>
+<header>
+    <h1>Student Profile</h1>
+</header>
+
+<div class="profile-container">
+
+    <div class="profile-header">
+        <img src="https://via.placeholder.com/120" alt="Profile Picture">
+        <h2>Student Name</h2>
+        <p>Student ID: STU12345</p>
+    </div>
+
+    <form class="profile-form">
+        <label>Full Name</label>
+        <input type="text" value="Student Name">
+
+        <label>Email</label>
+        <input type="email" value="student@email.com">
+
+        <label>Phone Number</label>
+        <input type="text" value="9876543210">
+
+        <label>Course</label>
+        <input type="text" value="Computer Science">
+
+        <label>Year</label>
+        <select>
+            <option>1st Year</option>
+            <option>2nd Year</option>
+            <option selected>3rd Year</option>
+            <option>4th Year</option>
+        </select>
+
+        <label>College</label>
+        <input type="text" value="ABC Engineering College">
+
+        <button class="btn">Update Profile</button>
+    </form>
+
 </div>
 
-<div class="container">
-    <p><b>Name:</b> Student Name</p>
-    <p><b>Branch:</b> Engineering</p>
-    <p><b>Skills:</b> C, Python, Web</p>
-    <p><b>Weak Subjects:</b> Mathematics</p>
-</div>
+<footer>
+    © 2025 Student Dashboard
+</footer>
 
 </body>
 </html>
