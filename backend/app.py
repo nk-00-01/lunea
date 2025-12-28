@@ -850,7 +850,7 @@ api.add_resource(score, '/api/score/', '/api/score/<string:student_id>/', '/api/
 api.add_resource(TodoResource, '/api/todo/<string:student_id>')
 api.add_resource(TodoDetail, '/api/todo/detail/<int:todo_id>')
 api.add_resource(Profile, "/api/profile/me")
-api.add_resource(AIPlanner, "/api/ai/planner")
+api.add_resource(AIPlanner, "/api/ai/planner/")
 
 
 
