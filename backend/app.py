@@ -70,7 +70,7 @@ CORS(
 )
 
 app.config['JWT_SECRET_KEY'] = os.environ.get("JWT_SECRET_KEY")
-'
+
 jwt = JWTManager(app)
 
 # @app.route("/test-gemini")
