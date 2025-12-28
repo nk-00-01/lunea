@@ -863,14 +863,15 @@ def add_depts_branches():
         db.session.commit()
 
     
-if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
-        add_depts_branches()
+with app.app_context():
+    db.create_all()
+    add_depts_branches()
 
-        orphan_exams = Exam.query.filter(Exam.subject == None).all()
-        for e in orphan_exams:
-            db.session.delete(e)
-        db.session.commit()
+    orphan_exams = Exam.query.filter(Exam.subject == None).all()
+    for e in orphan_exams:
+        db.session.delete(e)
+    db.session.commit()
 
-    app.run()
+if __name__ == "__main__":
+    app.run(debug=True)
+
