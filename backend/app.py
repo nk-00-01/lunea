@@ -271,7 +271,10 @@ class register(Resource):
         id = data.get('id')
         name = data.get('name')
         password = data.get('password')
-        branch_id = data.get('branch')
+        branch = data.get('branch')
+        if not branch:
+            return {"error": "Branch is required"}, 400
+
         year = data.get('year')
     
         # ---- OPTIONAL FIELDS ----
