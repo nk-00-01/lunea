@@ -299,7 +299,7 @@ class register(Resource):
             branch_id=branch
         )
     
-        student.set_password(password)   # assuming you have hashing
+        student.password = generate_password_hash(password)   # assuming you have hashing
     
         db.session.add(student)
         db.session.commit()
