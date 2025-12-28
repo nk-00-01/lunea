@@ -265,23 +265,44 @@ class register(Resource):
         ])
     
     def post(self):
-        data = request.get_json()
-        id = data['id']
-        user = Student.query.filter_by(id=id).first()
-        if  user:
-            return {"Alert": "User Exists already, please enter new user id"},404
-        name = data['name']
-        age = data['age'] if data['age'] else None
-        mobile = data['phone'] if data['phone'] else None
-        pwd = data['password']
-        branch =data['branch']
-        year = data['year']
+    data = request.get_json(force=True)
 
-        hashed_pwd = generate_password_hash(pwd)
-        user = Student(id=id,name=name, age=age,mobile=mobile, password=hashed_pwd,branch_id=branch,year=year)
-        db.session.add(user)
-        db.session.commit()
-        return {"success": "registration successful"},200
+    # ---- REQUIRED FIELDS ----
+    id = data.get('id')
+    name = data.get('name')
+    password = data.get('password')
+    branch_id = data.get('branch')
+    year = data.get('year')
+
+    # ---- OPTIONAL FIELDS ----
+    age = data.get('age')
+    mobile = data.get('phone')
+
+    # ---- VALIDATION ----
+    if not all([id, name, password, branch_id, year]):
+        return {"error": "Missing required fields"}, 400
+
+    user = Student.query.filter_by(id=id).first()
+    if user:
+        return {"Alert": "User Exists already, please enter new user id"}, 409
+
+    # ---- CREATE USER ----
+    student = Student(
+        id=id,
+        name=name,
+        age=age,
+        mobile=mobile,
+        year=year,
+        branch_id=branch_id
+    )
+
+    student.set_password(password)   # assuming you have hashing
+
+    db.session.add(student)
+    db.session.commit()
+
+    return {"message": "Registration successful"}, 201
+
     def delete(self, id):
         student = Student.query.filter_by(id=id).first()
 
