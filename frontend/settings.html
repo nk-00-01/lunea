@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Settings</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body.light {
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        body.dark {
+            background-color: #1e1e1e;
+            color: #fff;
+        }
+        .container {
+            margin: 20px;
+        }
+        .setting-item {
+            margin-bottom: 15px;
+        }
+        button {
+            margin-left: 10px;
+            padding: 5px 10px;
+        }
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+        }
+        .navbar a {
+            color: white;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body class="light">
+
+<div class="navbar">
+    <h2>Settings</h2>
+    <a href="dashboard.html">Back</a>
+</div>
+
+<div class="container">
+    <div class="setting-item">
+        Theme: <span id="themeLabel">Light</span>
+        <button id="toggleTheme">Toggle Theme</button>
+    </div>
+    <div class="setting-item">
+        Notifications: <span id="notificationsLabel">Enabled</span>
+        <button id="toggleNotifications">Toggle</button>
+    </div>
+    <div class="setting-item">
+        AI Assistance: <span id="aiLabel">Enabled</span>
+        <button id="toggleAI">Toggle</button>
+    </div>
+</div>
+
+<script>
+    // Load settings from localStorage
+    let settings = JSON.parse(localStorage.getItem('settings')) || {
+        theme: 'light',
+        notifications: true,
+        ai_assistance: true
+    };
+
+    const body = document.body;
+    const themeLabel = document.getElementById('themeLabel');
+    const notificationsLabel = document.getElementById('notificationsLabel');
+    const aiLabel = document.getElementById('aiLabel');
+
+    function updateUI() {
+        // Theme
+        body.className = settings.theme;
+        themeLabel.textContent = settings.theme.charAt(0).toUpperCase() + settings.theme.slice(1);
+
+        // Notifications
+        notificationsLabel.textContent = settings.notifications ? 'Enabled' : 'Disabled';
+
+        // AI Assistance
+        aiLabel.textContent = settings.ai_assistance ? 'Enabled' : 'Disabled';
+    }
+
+    function saveSettings() {
+        localStorage.setItem('settings', JSON.stringify(settings));
+    }
+
+    // Toggle Theme
+    document.getElementById('toggleTheme').addEventListener('click', () => {
+        settings.theme = settings.theme === 'light' ? 'dark' : 'light';
+        updateUI();
+        saveSettings();
+    });
+
+    // Toggle Notifications
+    document.getElementById('toggleNotifications').addEventListener('click', () => {
+        settings.notifications = !settings.notifications;
+        updateUI();
+        saveSettings();
+    });
+
+    // Toggle AI Assistance
+    document.getElementById('toggleAI').addEventListener('click', () => {
+        settings.ai_assistance = !settings.ai_assistance;
+        updateUI();
+        saveSettings();
+    });
+
+    // Initialize UI on load
+    updateUI();
+</script>
+
+</body>
+</html>

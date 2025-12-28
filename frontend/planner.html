@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>FocusFlow | AI Planner</title>
+
+<style>
+:root{
+    --primary:#2563eb;
+    --bg:#f1f5f9;
+    --surface:#ffffff;
+    --border:#e2e8f0;
+    --text:#1e293b;
+    --muted:#64748b;
+    --shadow:0 4px 6px -1px rgba(0,0,0,0.1);
+}
+*{box-sizing:border-box;}
+body{
+    margin:0;
+    font-family:Inter,Arial,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+}
+
+/* NAVBAR */
+.topbar{
+    background:#13121b;
+    color:#fff;
+    padding:14px 28px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+.topbar a{
+    color:#ddd;
+    text-decoration:none;
+    margin-left:18px;
+    font-weight:600;
+}
+.topbar a.active{
+    color:#fff;
+    border-bottom:2px solid #4f46e5;
+}
+
+/* MAIN */
+.container{
+    max-width:1200px;
+    margin:2rem auto;
+    padding:0 1.5rem;
+}
+.card{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:1.5rem;
+    box-shadow:var(--shadow);
+}
+
+/* CONTROLS */
+.controls{
+    display:flex;
+    gap:1rem;
+    align-items:center;
+    margin-bottom:2rem;
+}
+select, button{
+    padding:10px 14px;
+    border-radius:8px;
+    border:1px solid var(--border);
+    font-weight:600;
+}
+button{
+    background:var(--primary);
+    color:#fff;
+    border:none;
+    cursor:pointer;
+}
+
+/* TABLE */
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+th,td{
+    padding:12px;
+    border-bottom:1px solid var(--border);
+    text-align:left;
+}
+th{
+    background:#f8fafc;
+}
+.badge{
+    padding:4px 10px;
+    border-radius:12px;
+    font-size:12px;
+    font-weight:700;
+}
+.easy{background:#dcfce7;color:#166534}
+.medium{background:#fef3c7;color:#92400e}
+.hard{background:#fee2e2;color:#991b1b}
+.muted{color:var(--muted);}
+</style>
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<header class="topbar">
+    <div><strong>🎓 StudentAI</strong></div>
+    <nav>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="planner.html" class="active">Planner</a>
+        <a href="exam.html">Exams</a>
+        <a href="profile.html">Profile</a>
+        <a href="#" onclick="logout()">Logout</a>
+    </nav>
+</header>
+
+<!-- MAIN -->
+<div class="container">
+
+    <!-- AI CONTROLS -->
+    <div class="card controls">
+        <label><strong>Daily Study Capacity</strong></label>
+        <select id="dailyHours">
+            <option value="2">2 hours</option>
+            <option value="3">3 hours</option>
+            <option value="4" selected>4 hours</option>
+            <option value="5">5+ hours</option>
+        </select>
+        <button onclick="generatePlan()">Generate AI Schedule</button>
+    </div>
+
+    <!-- AI OUTPUT -->
+    <div class="card">
+        <h2>📅 AI Generated Study Plan</h2>
+        <div id="planArea">
+            <p class="muted">Click "Generate AI Schedule" to see your plan.</p>
+        </div>
+    </div>
+
+</div>
+
+<script>
+const token = localStorage.getItem("token");
+if (!token) {
+    alert("Please login again");
+    window.location.href = "login.html";
+}
+
+/* ---------- GENERATE NEW PLAN ---------- */
+async function generatePlan() {
+    const hours = document.getElementById("dailyHours").value;
+    const planArea = document.getElementById("planArea");
+    planArea.innerHTML = "<p>⏳ Generating AI schedule...</p>";
+
+    try {
+        const res = await fetch("https://lunea-aoc1.onrender.com/api/ai/planner/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify({ daily_hours: hours })
+        });
+
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            console.error("Backend error:", err);
+            planArea.innerHTML = "<p style='color:red'>Backend error occurred.</p>";
+            return;
+        }
+
+        const data = await res.json().catch(() => ({}));
+
+        if (!data.plan || data.plan.length === 0) {
+            planArea.innerHTML = "<p class='muted'>No exams found or AI could not generate a plan.</p>";
+            return;
+        }
+
+        renderTable(data.plan);
+
+    } catch (err) {
+        console.error("JS error:", err);
+        planArea.innerHTML = "<p style='color:red'>AI generation failed.</p>";
+    }
+}
+
+/* ---------- RENDER PLAN TABLE ---------- */
+function renderTable(schedule) {
+    let html = `
+        <table>
+            <tr>
+                <th>Date</th>
+                <th>Subject</th>
+                <th>Topic</th>
+                <th>Hours</th>
+            </tr>
+    `;
+
+    schedule.forEach(day => {
+        day.tasks.forEach(task => {
+            html += `
+                <tr>
+                    <td>${day.date}</td>
+                    <td>${task.subject}</td>
+                    <td>${task.topic}</td>
+                    <td>${task.hours}</td>
+                </tr>
+            `;
+        });
+    });
+
+    html += "</table>";
+    document.getElementById("planArea").innerHTML = html;
+}
+
+/* ---------- LOGOUT ---------- */
+function logout() {
+    localStorage.removeItem("token");
+    window.location.href = "login.html";
+}
+
+/* ---------- LOAD SAVED PLAN ---------- */
+window.onload = () => {
+    fetchSavedPlan();
+};
+
+async function fetchSavedPlan() {
+    try {
+        const res = await fetch("https://lunea-aoc1.onrender.com/api/ai/planner/", {
+            headers: {
+                "Authorization": `Bearer ${token}`
+            }
+        });
+
+        if (!res.ok) return;
+
+        const data = await res.json().catch(() => ({}));
+        if (data.plan && data.plan.length > 0) {
+            renderTable(data.plan);
+        }
+    } catch (err) {
+        console.error("Failed to load saved plan", err);
+    }
+}
+</script>
+
+
+
+
+</body>
+</html>

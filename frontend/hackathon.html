@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Hackathons & Tech Fests</title>
+    <style>
+        /* NAVBAR */
+        .topbar {
+            background: #13121b;
+            color: #fff;
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 99;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+        }
+        .brand { display:flex; gap:12px; align-items:center; font-weight:800; font-size:20px; }
+        .brand .mark { width:34px; height:34px; background:#ffffff10; border-radius:6px; display:flex; align-items:center; justify-content:center; }
+        nav { display:flex; gap:16px; align-items:center; }
+        a { color: rgba(255,255,255,0.88); text-decoration:none; padding:6px 8px; border-radius:6px; font-weight:600; }
+        a:hover { background:#ffffff08; color:#fff; }
+        a.active { background: linear-gradient(90deg,#2b6ef6,#7c3aed); color:#fff; box-shadow:0 6px 18px rgba(43,110,246,0.12); }
+
+        /* page styles */
+        body { margin:0; font-family: Arial, Helvetica, sans-serif; background:#fff; color:#111827; }
+        header.hero { background: linear-gradient(135deg, #2563eb, #7c3aed); padding:28px; text-align:center; color:white;}
+        header.hero h1{ margin:0; font-size:26px;}
+        .container { padding:20px; max-width:1100px; margin:20px auto; }
+        .controls { display:flex; gap:10px; margin-bottom:20px; flex-wrap:wrap;}
+        .controls input, .controls select{ padding:10px; border-radius:6px; border:1px solid #cbd5e1; min-width:200px;}
+        .grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(260px,1fr)); gap:20px;}
+        .card { background:#f8fafc; border-radius:12px; padding:18px; box-shadow:0 6px 15px rgba(0,0,0,0.08); }
+        .badge { display:inline-block; padding:4px 10px; border-radius:20px; font-size:12px; margin-bottom:10px; background:#22c55e; color:white; }
+        .card h3{ color:#1d4ed8; margin:6px 0;}
+        .card p{ color:#374151; margin:6px 0;}
+        .card a{ display:inline-block; margin-top:12px; padding:8px 14px; border-radius:6px; background:#2563eb; color:white; text-decoration:none;}
+        footer{ text-align:center; padding:15px; font-size:13px; color:#6b7280;}
+    </style>
+</head>
+<body>
+    <!-- NAVBAR -->
+    <header class="topbar" role="banner">
+        <div class="brand">
+            <div class="mark">🎓</div>
+            <div>StudentAI</div>
+        </div>
+        <nav role="navigation" aria-label="Main navigation">
+            <a href="dashboard.html">Dashboard</a>
+            <a href="planner.html">Planner</a>
+            <a href="exam.html">Exams</a>
+            <a href="hackathon.html" class="active">Hackathons</a>
+            <a href="profile.html">Profile</a>
+            <a href="settings.html">Settings</a>
+            <a href="index.html">Logout</a>
+        </nav>
+    </header>
+
+    <header class="hero">
+        <h1>🚀 Hackathons & Tech Fests</h1>
+        <p>Discover nearby hackathons, coding events & college fests</p>
+    </header>
+
+    <div class="container">
+        <div class="controls">
+            <input type="text" id="searchInput" placeholder="Search by event name or city...">
+            <select id="modeFilter">
+                <option value="all">All Modes</option>
+                <option value="Online">Online</option>
+                <option value="Offline">Offline</option>
+            </select>
+        </div>
+
+        <div class="grid" id="eventGrid">
+            <div class="card" data-mode="Online">
+                <span class="badge">Online</span>
+                <h3>CodeStorm Hackathon</h3>
+                <p>24-hour national level coding challenge.</p>
+                <div class="details">📍 India | 📅 Jan 15–16</div>
+                <a href="#">View Details</a>
+            </div>
+
+            <div class="card" data-mode="Offline">
+                <span class="badge" style="background:#1d4ed8">Offline</span>
+                <h3>TechFest IIT Bombay</h3>
+                <p>Asia’s largest science & technology festival.</p>
+                <div class="details">📍 Mumbai | 📅 Dec 20–22</div>
+                <a href="#">View Details</a>
+            </div>
+
+            <div class="card" data-mode="Online">
+                <span class="badge">Online</span>
+                <h3>AI Innovators Challenge</h3>
+                <p>Build AI solutions for real-world problems.</p>
+                <div class="details">📍 Online | 📅 Feb 10–12</div>
+                <a href="#">View Details</a>
+            </div>
+
+            <div class="card" data-mode="Offline">
+                <span class="badge" style="background:#1d4ed8">Offline</span>
+                <h3>Smart India Hackathon</h3>
+                <p>Government of India’s flagship hackathon.</p>
+                <div class="details">📍 Multiple Cities | 📅 Aug</div>
+                <a href="#">View Details</a>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        © 2025 Student Success Platform | Hackathons Module
+    </footer>
+
+    <script>
+        const searchInput = document.getElementById("searchInput");
+        const modeFilter = document.getElementById("modeFilter");
+        const cards = document.querySelectorAll(".card");
+
+        function filterEvents() {
+            const searchText = searchInput.value.toLowerCase();
+            const selectedMode = modeFilter.value;
+
+            cards.forEach(card => {
+                const text = card.innerText.toLowerCase();
+                const mode = card.getAttribute("data-mode");
+
+                const matchesSearch = text.includes(searchText);
+                const matchesMode = selectedMode === "all" || mode === selectedMode;
+
+                card.style.display = (matchesSearch && matchesMode) ? "block" : "none";
+            });
+        }
+
+        searchInput.addEventListener("input", filterEvents);
+        modeFilter.addEventListener("change", filterEvents);
+    </script>
+</body>
+</html>

@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Subjects | StudentAI</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f4f6fb;
+}
+.navbar {
+    background-color: #1e1e2f;
+    color: white;
+    padding: 20px 60px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.navbar a {
+    color: white;
+    text-decoration: none;
+    margin-left: 20px;
+    font-weight: 500;
+}
+.container {
+    max-width: 600px;
+    margin: 60px auto;
+    background: white;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+h3 {
+    color: #1e1e2f;
+    margin-bottom: 20px;
+    text-align: center;
+}
+.subject-input {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+.subject-input input {
+    flex: 1;
+    padding: 10px;
+    font-size: 16px;
+}
+.subject-input button {
+    padding: 10px 15px;
+    background-color: #1e1e2f;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+.subject-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+.subject-item button {
+    background: red;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="navbar">
+    <h2>StudentAI</h2>
+    <div>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="planner.html">Planner</a>
+        <a href="exam.html">Exams</a>
+        <a href="#" onclick="logout()">Logout</a>
+    </div>
+</div>
+
+<div class="container">
+    <h3>Enter Subjects You Are Pursuing</h3>
+
+    <form id="subjectForm">
+        <div class="subject-input">
+            <input type="text" id="subjectName" placeholder="Enter subject name" required>
+            <button type="submit">Add</button>
+        </div>
+    </form>
+
+    <div id="subjectsList"></div>
+</div>
+<script>
+const token = localStorage.getItem("token");
+
+if (!token) {
+    alert("Please login again");
+    window.location.href = "login.html";
+}
+
+/* ================= LOAD SUBJECTS ================= */
+async function loadSubjects() {
+    try {
+        const res = await fetch("https://lunea-aoc1.onrender.com/api/subjects/", {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+
+        if (!res.ok) throw new Error("Failed to load subjects");
+
+        const subjects = await res.json();
+        const list = document.getElementById("subjectsList");
+        list.innerHTML = "";
+
+        subjects.forEach(s => {
+            const div = document.createElement("div");
+            div.className = "subject-item";
+            div.innerHTML = `
+                <span>${s.name}</span>
+                <button type="button" onclick="deleteSubject(${s.id})">Delete</button>
+            `;
+            list.appendChild(div);
+        });
+
+    } catch (err) {
+        console.error(err);
+        alert("Could not load subjects");
+    }
+}
+
+/* ================= ADD SUBJECT ================= */
+document.getElementById("subjectForm").addEventListener("submit", async e => {
+    e.preventDefault();
+
+    const name = document.getElementById("subjectName").value.trim();
+    if (!name) return;
+
+    try {
+        const res = await fetch("https://lunea-aoc1.onrender.com/api/subjects/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`
+            },
+            body: JSON.stringify({ subjects: [name] }) // Backend expects list
+        });
+
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            throw new Error(err.error || "Failed to add subject");
+        }
+
+        document.getElementById("subjectName").value = "";
+        loadSubjects();
+
+    } catch (err) {
+        console.error(err);
+        alert(err.message);
+    }
+});
+
+/* ================= DELETE SUBJECT ================= */
+async function deleteSubject(id) {
+    if (!confirm("Delete this subject?")) return;
+
+    try {
+        const res = await fetch(`https://lunea-aoc1.onrender.com/api/subjects/${id}/`, {
+            method: "DELETE",
+            headers: { Authorization: `Bearer ${token}` }
+        });
+
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            throw new Error(err.error || "Failed to delete subject");
+        }
+
+        loadSubjects();
+
+    } catch (err) {
+        console.error(err);
+        alert(err.message);
+    }
+}
+
+function logout() {
+    localStorage.removeItem("token");
+    window.location.href = "login.html";
+}
+
+window.onload = loadSubjects;
+
+</script>
+
+
+</body>
+</html>

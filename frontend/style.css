@@ -1,0 +1,196 @@
+/* =========================
+   GOOGLE FONT
+========================= */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+/* =========================
+   GLOBAL RESET
+========================= */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+/* =========================
+   BODY LAYOUT
+========================= */
+body {
+    background-color: #f4f6f8;
+    color: #333;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* =========================
+   NAVBAR
+========================= */
+.navbar {
+    background-color: #1e1e2f;
+    color: white;
+    padding: 20px 60px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    
+}
+
+.navbar h2 {
+    font-size: 24px;
+    font-weight: 600;
+}
+
+.navbar div {
+    display: flex;
+    gap: 25px;
+}
+
+.navbar a {
+    color: white;
+    text-decoration: none;
+    font-size: 15px;
+}
+
+.navbar a:hover {
+    color: #4caf50;
+}
+
+/* =========================
+   HERO (HOME)
+========================= */
+.hero {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 20px;
+
+}
+
+.hero-content {
+    max-width: 850px;
+}
+
+.hero-content h1 {
+    font-size: 42px;
+    color: #1e1e2f;
+    margin-bottom: 20px;
+}
+
+.hero-content p {
+    font-size: 16px;
+    line-height: 1.7;
+}
+
+/* =========================
+   BUTTONS
+========================= */
+.cta-btn {
+    margin-top: 25px;
+    padding: 12px 35px;
+    border: none;
+    border-radius: 30px;
+    background-color: #4caf50;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.cta-btn:hover {
+    background-color: #43a047;
+}
+
+/* =========================
+   LOGIN & REGISTER
+========================= */
+.login-hero,
+.register-hero {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.login-box,
+.register-box {
+    background: white;
+    padding: 40px;
+    width: 100%;
+    max-width: 420px;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+    text-align: center;
+}
+
+.login-box h2,
+.register-box h2 {
+    margin-bottom: 20px;
+}
+
+.login-box input,
+.register-box input {
+    width: 100%;
+    padding: 12px;
+    margin: 12px 0;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+
+.login-box button,
+.register-box button {
+    width: 100%;
+    padding: 12px;
+    border-radius: 30px;
+    background-color: #4caf50;
+    border: none;
+    color: white;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.login-box p,
+.register-box p {
+    margin-top: 15px;
+    font-size: 14px;
+}
+
+.login-box a,
+.register-box a {
+    color: #4caf50;
+    text-decoration: none;
+}
+
+/* =========================
+   DASHBOARD
+========================= */
+.container {
+    padding: 50px 70px;
+    flex: 1;
+}
+
+.cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 30px;
+}
+
+.card {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+}
+
+/* =========================
+   FOOTER
+========================= */
+.footer {
+    background-color: #1e1e2f;
+    color: white;
+    text-align: center;
+    padding: 18px;
+}

@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Exam Schedule Planner | StudentAI</title>
+
+<style>
+/* NAVBAR */
+.topbar{
+    background:#13121b;
+    color:#fff;
+    padding:12px 22px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    position:sticky;
+    top:0;
+    z-index:99;
+}
+.brand{display:flex;gap:12px;align-items:center;font-weight:800;font-size:20px;}
+.mark{width:34px;height:34px;background:#ffffff10;border-radius:6px;display:flex;align-items:center;justify-content:center;}
+nav{display:flex;gap:16px;}
+a{color:#fff;text-decoration:none;font-weight:600;padding:6px 8px;border-radius:6px;}
+a.active{background:linear-gradient(90deg,#2b6ef6,#7c3aed);}
+a:hover{background:#1e1e2f}
+
+/* GLOBAL */
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Segoe UI,Arial;background:#f0f2f5;color:#222}
+
+/* DASHBOARD */
+.dashboard{
+    background:#1e1e2f;
+    padding:24px;
+}
+.dashboard h2{color:#fff;margin-bottom:16px}
+.dashboard-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+    gap:16px;
+}
+.dash-card{
+    background:#2a2a3f;
+    padding:18px;
+    border-radius:12px;
+    color:#fff;
+}
+.dash-value{
+    font-size:32px;
+    font-weight:800;
+    margin-top:6px;
+}
+
+/* PAGE */
+.container{
+    max-width:1400px;
+    margin:20px auto;
+    background:white;
+    border-radius:16px;
+    overflow:hidden;
+}
+.header{
+    background:linear-gradient(135deg,#1e3c72,#2a5298);
+    color:white;
+    padding:40px;
+    text-align:center;
+}
+.content{padding:30px}
+.form-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+    gap:15px;
+}
+label{font-weight:600}
+input,select{
+    padding:10px;
+    border-radius:8px;
+    border:1px solid #ccc;
+    width:100%;
+}
+.btn{
+    background:#1e3c72;
+    color:white;
+    border:none;
+    padding:12px 18px;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:700;
+}
+.exam-card{
+    background:white;
+    padding:18px;
+    border-radius:12px;
+    border:1px solid #ddd;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+.days-left{
+    background:#1e3c72;
+    color:white;
+    padding:8px 12px;
+    border-radius:6px;
+    font-weight:700;
+}
+.exam-list{display:grid;gap:15px;margin-top:20px}
+</style>
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<header class="topbar">
+    <div class="brand">
+        <div class="mark">🎓</div>
+        StudentAI
+    </div>
+    <nav>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="planner.html">Planner</a>
+        <a class="active">Exams</a>
+        <a href="hackathon.html">Hackathons</a>
+        <a href="profile.html">Profile</a>
+        <a href="settings.html">Settings</a>
+        <a href="#" onclick="logout()">Logout</a>
+    </nav>
+</header>
+
+<!-- DASHBOARD -->
+<section class="dashboard">
+    <h2>Dashboard Overview</h2>
+    <div class="dashboard-grid">
+        <div class="dash-card">
+            Total Exams
+            <div class="dash-value" id="totalExams">0</div>
+        </div>
+        <div class="dash-card">
+            Upcoming Exam
+            <div class="dash-value" id="upcomingExam">-</div>
+        </div>
+        <div class="dash-card">
+            Total Study Hours
+            <div class="dash-value" id="totalHours">0</div>
+        </div>
+        <div class="dash-card">
+            Today's Load
+            <div class="dash-value" id="todayLoad">0h</div>
+        </div>
+    </div>
+</section>
+
+<!-- EXAM PLANNER -->
+<div class="container">
+    <div class="header">
+        <h1>📚 Exam Schedule Planner</h1>
+        <p>Plan your preparation effectively</p>
+    </div>
+
+    <div class="content">
+        <div class="form-grid">
+            <div>
+                <label>Subject</label>
+                <select id="subjectSelect">
+                    <option value="">Loading subjects...</option>
+                </select>
+            </div>
+
+            <div>
+                <label>Exam Date</label>
+                <input type="date" id="examDate">
+            </div>
+
+            <div>
+                <label>Difficulty</label>
+                <select id="difficulty">
+                    <option value="">Select difficulty</option>
+                    <option value="Easy">Easy</option>
+                    <option value="Medium">Medium</option>
+                    <option value="Hard">Hard</option>
+                </select>
+            </div>
+
+            <div>
+                <label>Daily Study Time</label>
+                <input type="time" id="studyTime">
+            </div>
+        </div>
+
+        <br>
+        <button class="btn" onclick="addExam()">Add Exam</button>
+
+        <div id="examList" class="exam-list"></div>
+    </div>
+</div>
+
+<script>
+const token = localStorage.getItem("token");
+let exams = [];
+
+if (!token) {
+    alert("Please login again");
+    window.location.href = "login.html";
+}
+
+/* ---------- LOAD SUBJECTS ---------- */
+async function loadSubjects() {
+    try {
+        const res = await fetch("https://lunea-aoc1.onrender.com/api/subjects/", {
+            headers: { 
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json"
+            }
+        });
+
+        if (!res.ok) throw new Error("Failed to load subjects");
+
+        const subjects = await res.json();
+        const select = document.getElementById("subjectSelect");
+        select.innerHTML = `<option value="">Select subject</option>`;
+
+        subjects.forEach(s => {
+            const opt = document.createElement("option");
+            opt.value = s.id;
+            opt.textContent = s.name;
+            select.appendChild(opt);
+        });
+    } catch (err) {
+        console.error(err);
+        alert("Error connecting to server. Please login again.");
+        localStorage.removeItem("token");
+        window.location.href = "login.html";
+    }
+}
+
+/* ---------- LOAD EXAMS ---------- */
+async function loadExams() {
+    try {
+        const res = await fetch("https://lunea-aoc1.onrender.com/api/exams/", {
+            headers: { 
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json"
+            }
+        });
+
+        if (!res.ok) throw new Error("Failed to load exams");
+
+        exams = await res.json();
+        displayExams();
+        updateDashboard();
+    } catch (err) {
+        console.error(err);
+        alert("Error connecting to server. Please login again.");
+        localStorage.removeItem("token");
+        window.location.href = "login.html";
+    }
+}
+
+/* ---------- ADD EXAM ---------- */
+async function addExam() {
+    const subjectId = document.getElementById("subjectSelect").value;
+    const examDate = document.getElementById("examDate").value;
+    const difficulty = document.getElementById("difficulty").value;
+    const studyTime = document.getElementById("studyTime").value;
+
+    if (!subjectId || !examDate || !difficulty || !studyTime) {
+        alert("Fill all fields");
+        return;
+    }
+
+    try {
+        const res = await fetch("https://lunea-aoc1.onrender.com/api/exams/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                sub_id: subjectId,
+                exam_date: examDate,
+                difficulty: difficulty,
+                time: studyTime
+            })
+        });
+
+        if (!res.ok) throw new Error("Failed to add exam");
+
+        document.getElementById("examDate").value = "";
+        document.getElementById("difficulty").value = "";
+        document.getElementById("studyTime").value = "";
+        loadExams();
+    } catch (err) {
+        console.error(err);
+        alert("Error connecting to server. Please login again.");
+        localStorage.removeItem("token");
+        window.location.href = "login.html";
+    }
+}
+
+/* ---------- DELETE EXAM ---------- */
+async function deleteExam(id) {
+    if (!confirm("Delete this exam?")) return;
+
+    try {
+        const res = await fetch(`https://lunea-aoc1.onrender.com/api/exams/${id}`, {
+            method: "DELETE",
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json"
+            }
+        });
+
+        if (!res.ok) throw new Error("Failed to delete exam");
+
+        loadExams();
+    } catch (err) {
+        console.error(err);
+        alert("Error connecting to server. Please login again.");
+        localStorage.removeItem("token");
+        window.location.href = "login.html";
+    }
+}
+
+/* ---------- DASHBOARD ---------- */
+function updateDashboard() {
+    document.getElementById("totalExams").textContent = exams.length;
+    document.getElementById("totalHours").textContent = exams.reduce((sum, e) => {
+        const parts = e.study_time?.split(':') || [0,0];
+        return sum + parseInt(parts[0] || 0) + parseInt(parts[1] || 0)/60;
+    }, 0).toFixed(1) + "h";
+
+    if (exams.length) {
+        const next = [...exams].sort(
+            (a, b) => new Date(a.date) - new Date(b.date)
+        )[0];
+
+        document.getElementById("upcomingExam").textContent = next.subject;
+        document.getElementById("todayLoad").textContent =
+            Math.ceil(parseInt(next.study_time.split(':')[0] || 0)) + "h";
+    } else {
+        document.getElementById("upcomingExam").textContent = "-";
+        document.getElementById("todayLoad").textContent = "0h";
+    }
+}
+
+/* ---------- DISPLAY EXAMS ---------- */
+function displayExams() {
+    const list = document.getElementById("examList");
+    list.innerHTML = "";
+
+    exams.forEach(e => {
+        const days = Math.ceil(
+            (new Date(e.date) - new Date()) / 86400000
+        );
+
+        list.innerHTML += `
+            <div class="exam-card">
+                <div>
+                    <h3>${e.subject}</h3>
+                    <p>Date: ${new Date(e.date).toDateString()}</p>
+                    <p>Difficulty: ${e.difficulty}</p>
+                    <p>Study Time: ${e.study_time}</p>
+                </div>
+                <div>
+                    <div class="days-left">
+                        ${days > 0 ? days + " days" : "Today"}
+                    </div>
+                    <br>
+                    <button class="btn" onclick="deleteExam(${e.id})">Delete</button>
+                </div>
+            </div>
+        `;
+    });
+}
+
+/* ---------- LOGOUT ---------- */
+function logout() {
+    localStorage.removeItem("token");
+    window.location.href = "login.html";
+}
+
+/* ---------- INIT ---------- */
+loadSubjects();
+loadExams();
+</script>
+
+
+</body>
+</html>

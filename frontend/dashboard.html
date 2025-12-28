@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard | StudentAI</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<script src="dashboard.js"></script>
+
+
+<body>
+
+<div class="navbar">
+    <h2>StudentAI</h2>
+    <div>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="planner.html">Planner</a>
+        <a href="exam.html">Exams</a>
+        <a href="hackathon.html">Hackathons</a>
+        <a href="profile.html">Profile</a>
+        <a href="settings.html">Settings</a>
+        <a href="subjects.html">Subjects</a>
+        <a href="index.html">Logout</a>
+    </div>
+</div>
+<!-- ADDED -->
+<div class="container">
+    <h1>Welcome, <span id="studentName">Student</span></h1>
+    <p>
+        Year: <span id="studentYear"></span> |
+        Branch: <span id="studentBranch"></span> |
+        Department: <span id="studentDept"></span>
+    </p>
+
+    <h3>Your Subjects</h3>
+    <ul id="subjectsList"></ul>
+
+    <h3>Upcoming Exams</h3>
+    <ul id="examsList"></ul>
+    <h3>Choose Module</h3>
+
+    <div class="cards">
+        <a href="planner.html"><div class="card">📅 Study Planner</div></a>
+        <a href="exam.html"><div class="card">📝 Exams</div></a>
+        <a href="hackathon.html"><div class="card">🚀 Hackathons</div></a>
+        <a href="profile.html"><div class="card">👤 Profile</div></a>
+        <a href="settings.html"><div class="card">⚙️ Settings</div></a>
+    </div>
+</div>
+<!-- End of the added part  -->
+
+<footer class="footer">
+    <p>© 2025 StudentAI Dashboard</p>
+</footer>
+
+</body>
+</html>
