@@ -282,7 +282,7 @@ class register(Resource):
         mobile = data.get('phone')
     
         # ---- VALIDATION ----
-        if not all([id, name, password, branch_id, year]):
+        if not all([id, name, password, branch, year]):
             return {"error": "Missing required fields"}, 400
     
         user = Student.query.filter_by(id=id).first()
@@ -296,7 +296,7 @@ class register(Resource):
             age=age,
             mobile=mobile,
             year=year,
-            branch_id=branch_id
+            branch_id=branch
         )
     
         student.set_password(password)   # assuming you have hashing
