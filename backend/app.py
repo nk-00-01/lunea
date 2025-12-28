@@ -69,7 +69,8 @@ CORS(
     expose_headers=["Authorization"]
 )
 
-app.config['JWT_SECRET_KEY'] = 'super-secret-key'
+app.config['JWT_SECRET_KEY'] = os.environ.get("JWT_SECRET_KEY")
+'
 jwt = JWTManager(app)
 
 # @app.route("/test-gemini")
@@ -163,7 +164,7 @@ class Todo(db.Model):
     __tablename__ = 'todo'
     id = db.Column(db.Integer, primary_key=True)
     student_id = db.Column(db.String(20), db.ForeignKey('student.id'), nullable=False)
-    title = db.Column(db.String(100), nullable=False)
+    task = db.Column(db.String(100), nullable=False)
     description = db.Column(db.String(500))
     done = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
@@ -174,11 +175,8 @@ class Assignment(db.Model):
     subject_id = db.Column(db.Integer, db.ForeignKey('subject.id'))
     title = db.Column(db.String(100))
     due_date = db.Column(db.Date, nullable=False)
-    status = db.Column(
-    db.Enum('Pending', 'Submitted', name='assignment_status'),
-    default='Pending',
-    nullable=False
-)
+    status = db.Column(db.String(20), default='Pending', nullable=False)
+
 
 
 class StudyPlan(db.Model):
@@ -420,33 +418,33 @@ class exams(Resource):
 
         return {"success": "Exam added"}, 201
 
-        student = Student.query.filter_by(id=id).first()
-        if not student:
-            return {"error": "Student not found"}, 404
+        # student = Student.query.filter_by(id=id).first()
+        # if not student:
+        #     return {"error": "Student not found"}, 404
 
-        sub_id = request.args.get('sub_id')
-        upcoming = request.args.get('upcoming')
+        # sub_id = request.args.get('sub_id')
+        # upcoming = request.args.get('upcoming')
 
-        query = Exam.query.filter_by(student_id=id)
+        # query = Exam.query.filter_by(student_id=id)
 
-        if sub_id:
-            query = query.filter_by(subject_id=sub_id)
+        # if sub_id:
+        #     query = query.filter_by(subject_id=sub_id)
 
-        if upcoming == "true":
-            query = query.filter(Exam.date >= datetime.today().date())
+        # if upcoming == "true":
+        #     query = query.filter(Exam.date >= datetime.today().date())
 
-        exams = query.order_by(Exam.date.asc()).all()
+        # exams = query.order_by(Exam.date.asc()).all()
 
-        result = [{
-            "exam_id": e.id,
-            "subject": e.subject.name,
-            "subject_id": e.subject_id,
-            "date": e.date.isoformat(),
-            "difficulty": e.difficulty,
-            "study_time": e.study_time.strftime("%H:%M") if e.study_time else None
-        } for e in exams]
+        # result = [{
+        #     "exam_id": e.id,
+        #     "subject": e.subject.name,
+        #     "subject_id": e.subject_id,
+        #     "date": e.date.isoformat(),
+        #     "difficulty": e.difficulty,
+        #     "study_time": e.study_time.strftime("%H:%M") if e.study_time else None
+        # } for e in exams]
 
-        return result, 200
+        # return result, 200
     def delete(self, id):
         exam = Exam.query.get(id)
 
@@ -490,12 +488,12 @@ class score(Resource):
         db.session.add(gr)
         db.session.commit()
         return {"success":'entered data successfully'},200
-    def get(self,id):
+    def get(self,student_id):
         grades = Grades.query.filter_by(student_id=id).all()
         scores = {g.sem : {"sgpa":g.sgpa,"cgpa":g.cgpa} for g in grades}
         return scores, 200
     
-    def delete(self,id,sem):
+    def delete(self,student_id,sem):
         latest = Grades.query.filter_by(student_id=id).order_by(Grades.sem.desc).first()
         if not latest:
             return {"error": "No grades found"}, 404
@@ -826,7 +824,7 @@ api.add_resource(register, '/api/register/', '/api/register/<string:id>')
 api.add_resource(dashboard, '/api/dashboard/')
 api.add_resource(Subjects, "/api/subjects/")
 api.add_resource(SubjectDelete, "/api/subjects/<int:id>/")
-api.add_resource(exams, '/api/exams/','/api/exams/<string:id>','/api/exams/<int:id>')
+api.add_resource(exams, '/api/exams/','/api/exams/<int:id>')
 api.add_resource(score, '/api/score/', '/api/score/<string:student_id>/', '/api/student/<string:student_id>/<int:sem>')
 api.add_resource(TodoResource, '/api/todo/<string:student_id>')
 api.add_resource(TodoDetail, '/api/todo/detail/<int:todo_id>')
