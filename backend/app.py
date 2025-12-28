@@ -174,7 +174,12 @@ class Assignment(db.Model):
     subject_id = db.Column(db.Integer, db.ForeignKey('subject.id'))
     title = db.Column(db.String(100))
     due_date = db.Column(db.Date, nullable=False)
-    status = db.Column(db.Enum('Pending', 'Submitted'), default='Pending', nullable=False)
+    status = db.Column(
+    db.Enum('Pending', 'Submitted', name='assignment_status'),
+    default='Pending',
+    nullable=False
+)
+
 
 class StudyPlan(db.Model):
     __tablename__ = "study_plan"
