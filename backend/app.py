@@ -848,88 +848,70 @@ class AIPlanner(Resource):
 
         
 # AI CHATBOT
-# DANGER_KEYWORDS = [
-#     "kill myself", "end my life", "suicide",
-#     "give up on life", "can't go on",
-#     "worthless", "no reason to live"
-# ]
+DANGER_KEYWORDS = [
+    "kill myself", "end my life", "suicide",
+    "give up on life", "can't go on",
+    "worthless", "no reason to live"
+]
 
-# def is_severe_distress(text: str) -> bool:
-#     text = text.lower()
-#     return any(word in text for word in DANGER_KEYWORDS)
+def is_severe_distress(text: str) -> bool:
+    text = text.lower()
+    return any(word in text for word in DANGER_KEYWORDS)
 
 def build_prompt(student, todos, exams, assignments, grades, user_message):
     upcoming_exams = [
         f"- {e.subject.name} on {e.date}"
         for e in exams if e.date >= date.today()
     ]
-
     pending_todos = [f"- {t.task}" for t in todos]
     assignments_due = [
         f"- {a.title} due on {a.due_date}"
         for a in assignments
     ]
-
     cgpa = grades[0].cgpa if grades else "Not available"
 
     return f"""
 You are an academic mentor helping a college student regain focus and confidence.
-
 Rules:
-- Do NOT act as a therapist or doctor
-- Do NOT mention mental illness, self-harm, or diagnosis
-- Focus on study pressure, planning, motivation, and small actions
-- Keep responses supportive, calm, and practical
-- Limit response to 4–6 complete sentences
+- Do NOT act as a therapist or doctor.
+- Focus on study pressure, planning, motivation, and small actions.
+- Limit response to 4–6 complete sentences.
 
 Student Info:
-Name: {student.name}
-Year: {student.year}
-Branch: {student.branch.name}
-CGPA: {cgpa}
+Name: {student.name}, Year: {student.year}, Branch: {student.branch.name}, CGPA: {cgpa}
 
-Upcoming Exams:
-{chr(10).join(upcoming_exams) if upcoming_exams else "None"}
+Upcoming Exams: {', '.join(upcoming_exams) if upcoming_exams else "None"}
+Pending Tasks: {', '.join(pending_todos) if pending_todos else "None"}
+Assignments: {', '.join(assignments_due) if assignments_due else "None"}
 
-Pending Tasks:
-{chr(10).join(pending_todos) if pending_todos else "None"}
-
-Assignments:
-{chr(10).join(assignments_due) if assignments_due else "None"}
-
-Student says:
-"{user_message}"
-
+Student says: "{user_message}"
 Respond like a calm academic coach.
 """
 
 def get_gemini_response(prompt: str) -> str:
-    response = client.models.generate_content(
-        model=MODEL_NAME,
-        contents=prompt,
-        config={
-            "temperature": 0.5,
-            "max_output_tokens": 300
-        }
-    )
-
-    full_text = []
-
-    if response.candidates:
-        for part in response.candidates[0].content.parts:
-            if hasattr(part, "text"):
-                full_text.append(part.text)
-
-    reply = "".join(full_text).strip()
-
-    if not reply or reply.endswith(("and", "it", "that", "to")):
-        return (
-            "I can see that academics feel overwhelming right now. "
-            "Let’s slow this down and focus on one small step you can take today. "
-            "You don’t need to fix everything at once."
+    try:
+        # Increased max_output_tokens to 500 to prevent mid-sentence cuts
+        response = client.models.generate_content(
+            model=MODEL_NAME,
+            contents=prompt,
+            config={
+                "temperature": 0.6,
+                "max_output_tokens": 500
+            }
         )
-
-    return reply
+        
+        # Directly using .text is more reliable than looping through parts
+        if response and response.text:
+            reply = response.text.strip()
+            # Safety fallback if the AI stops abruptly
+            if reply.endswith(("and", "it", "that", "to", "you")):
+                return reply + "... Let's focus on taking one small step at a time."
+            return reply
+            
+    except Exception as e:
+        print(f"Gemini Error: {e}")
+        
+    return "I can see that academics feel overwhelming right now. Let’s slow this down and focus on one small step you can take today."
 
 class ChatbotResource(Resource):
     @jwt_required()
@@ -944,43 +926,21 @@ class ChatbotResource(Resource):
         if not student:
             return {"error": "Student not found"}, 404
 
-        # Fetch academic context
-        todos = Todo.query.filter_by(
-            student_id=student_id, done=False
-        ).all()
+        # Distress Check
+        if is_severe_distress(args["message"]):
+            return {"reply": "I'm sorry you're feeling this way. Please reach out to a trusted friend or professional. For now, let's try to focus on just one small task together."}, 200
 
-        exams = Exam.query.filter(
-            Exam.student_id == student_id,
-            Exam.date >= date.today()
-        ).order_by(Exam.date).all()
+        # Fetch Context
+        todos = Todo.query.filter_by(student_id=student_id, done=False).all()
+        exams = Exam.query.filter(Exam.student_id == student_id, Exam.date >= date.today()).all()
+        assignments = Assignment.query.join(Subject).filter(Subject.student_id == student_id, Assignment.status != "Completed").all()
+        grades = Grades.query.filter_by(student_id=student_id).order_by(Grades.sem.desc()).all()
 
-        assignments = Assignment.query.join(Subject).filter(
-            Subject.student_id == student_id,
-            Assignment.status != "Completed"
-        ).all()
-
-        grades = Grades.query.filter_by(
-            student_id=student_id
-        ).order_by(Grades.sem.desc()).all()
-
-        # Build Gemini prompt
-        prompt = build_prompt(
-            student=student,
-            todos=todos,
-            exams=exams,
-            assignments=assignments,
-            grades=grades,
-            user_message=args["message"]
-        )
-
-        # Get AI response
+        prompt = build_prompt(student, todos, exams, assignments, grades, args["message"])
         reply = get_gemini_response(prompt)
 
         return {"reply": reply}, 200
 
-
-
-        
 api.add_resource(ChatbotResource, "/api/chatbot")
 api.add_resource(BranchList, "/api/branches")
 api.add_resource(login, '/api/login/')
