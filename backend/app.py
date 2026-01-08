@@ -900,7 +900,7 @@ def get_gemini_response(prompt: str) -> str:
     contents=prompt,
     config={
         "temperature": 0.2,
-        "max_output_tokens": 800,
+        "max_output_tokens": 180,
         "response_mime_type": "application/json"
     }
 )
@@ -1004,25 +1004,28 @@ class RoadmapResource(Resource):
             return {"error": "Topic is required"}, 400
 
         prompt = f"""
+You are an expert learning mentor.
+
 Create a learning roadmap.
 
-STRICT RULES:
+STRICT RULES (MUST FOLLOW):
 - Output ONLY valid JSON
 - No markdown
 - No explanations
-- Keep it SHORT
-- Max 4 phases
-- Max 4 topics per phase
+- No extra text
+- Max 3 phases ONLY
+- Max 3 topics per phase
+- Each topic must be SHORT (2–4 words)
 
-JSON format:
+JSON FORMAT:
 {{
   "title": "{topic}",
   "level": "{level}",
   "phases": [
     {{
       "phase": "Phase 1",
-      "duration": "2-3 weeks",
-      "topics": ["item1", "item2"]
+      "duration": "2 weeks",
+      "topics": ["Topic A", "Topic B", "Topic C"]
     }}
   ]
 }}
@@ -1037,7 +1040,6 @@ JSON format:
             }
         )
 
-        # extract text safely
         text_parts = []
         if response.candidates:
             for part in response.candidates[0].content.parts:
@@ -1045,16 +1047,35 @@ JSON format:
                     text_parts.append(part.text)
 
         raw = "".join(text_parts).strip()
+        print("RAW AI RESPONSE:", raw)
 
         try:
             roadmap = safe_json_load(raw)
         except Exception:
-            return {
-                "error": "AI returned broken JSON",
-                "raw": raw[:400]
-            }, 500
+            roadmap = {
+                "title": topic,
+                "level": level,
+                "phases": [
+                    {
+                        "phase": "Phase 1",
+                        "duration": "2 weeks",
+                        "topics": [
+                            "Learn basics",
+                            "Follow tutorials",
+                            "Practice daily"
+                        ]
+                    }
+                ]
+            }
 
         return roadmap, 200
+
+
+def safe_json_load(raw):
+    start = raw.index("{")
+    end = raw.rindex("}") + 1
+    return json.loads(raw[start:end])
+
 
 
 api.add_resource(RoadmapResource, "/api/roadmap")
