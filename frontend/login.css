@@ -1,0 +1,120 @@
+/* =========================
+   FONT
+   ========================= */
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&display=swap');
+
+body {
+    font-family: 'Manrope', sans-serif;
+}
+
+/* =========================
+   NAVBAR
+   ========================= */
+.navbar-glass {
+    background: rgba(255,255,255,0.05);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid rgba(255,255,255,0.12);
+}
+
+.brand-text {
+    font-size: 1.7rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: #e0f2fe;
+}
+
+/* =========================
+   NAV LINKS
+   ========================= */
+.nav-link {
+    color: #cbd5f5;
+    font-weight: 500;
+    position: relative;
+}
+
+.nav-link:hover {
+    color: #67e8f9;
+}
+
+/* =========================
+   LOGIN FORM BOX
+   ========================= */
+.form-box {
+    background: rgba(255,255,255,0.08);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 24px;
+    padding: 3rem 2.5rem;
+    max-width: 480px;
+    width: 100%;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+}
+
+.form-box h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #e0f2fe;
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.form-box input {
+    width: 100%;
+    padding: 14px 18px;
+    margin-bottom: 1rem;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.2);
+    background: rgba(255,255,255,0.05);
+    color: #e0f2fe;
+    font-size: 15px;
+    transition: all 0.3s ease;
+}
+
+.form-box input:focus {
+    outline: none;
+    border-color: #67e8f9;
+    background: rgba(255,255,255,0.08);
+    box-shadow: 0 0 0 3px rgba(103,232,249,0.1);
+}
+
+.form-box input::placeholder {
+    color: #94a3b8;
+}
+
+.form-box button[type="submit"] {
+    width: 100%;
+    padding: 14px;
+    margin-top: 1rem;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #22d3ee, #6366f1);
+    color: white;
+    font-weight: 600;
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 20px rgba(99,102,241,0.4);
+}
+
+.form-box button[type="submit"]:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 30px rgba(34,211,238,0.5);
+}
+
+.form-box p {
+    text-align: center;
+    margin-top: 1.5rem;
+    color: #cbd5e1;
+    font-size: 14px;
+}
+
+.form-box p a {
+    color: #67e8f9;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s ease;
+}
+
+.form-box p a:hover {
+    color: #22d3ee;
+}
