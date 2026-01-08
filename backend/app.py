@@ -847,42 +847,42 @@ class AIPlanner(Resource):
 
 
         
-DANGER_KEYWORDS = [
-    "kill myself", "end my life", "suicide",
-    "give up on life", "can't go on",
-    "worthless", "no reason to live"
-]
+# AI CHATBOT
+# DANGER_KEYWORDS = [
+#     "kill myself", "end my life", "suicide",
+#     "give up on life", "can't go on",
+#     "worthless", "no reason to live"
+# ]
 
-def is_severe_distress(text: str) -> bool:
-    text = text.lower()
-    return any(word in text for word in DANGER_KEYWORDS)
+# def is_severe_distress(text: str) -> bool:
+#     text = text.lower()
+#     return any(word in text for word in DANGER_KEYWORDS)
 
 def build_prompt(student, todos, exams, assignments, grades, user_message):
     upcoming_exams = [
-        f"- {e.subject.name} on {e.date} (Difficulty: {e.difficulty})"
+        f"- {e.subject.name} on {e.date}"
         for e in exams if e.date >= date.today()
     ]
 
     pending_todos = [f"- {t.task}" for t in todos]
     assignments_due = [
-        f"- {a.title} ({a.subject.name}) due on {a.due_date}"
+        f"- {a.title} due on {a.due_date}"
         for a in assignments
     ]
 
     cgpa = grades[0].cgpa if grades else "Not available"
 
     return f"""
-You are a supportive academic wellness assistant for a college student.
+You are an academic mentor helping a college student regain focus and confidence.
 
-Your role:
-- Help with stress, anxiety, exam pressure, and workload
-- Be empathetic, calm, and practical
-- Give personalized advice using the student's academic data
-- You are NOT a therapist or doctor
-- Do NOT diagnose mental illness
-- If the student sounds severely distressed, encourage reaching a trusted person
+Rules:
+- Do NOT act as a therapist or doctor
+- Do NOT mention mental illness, self-harm, or diagnosis
+- Focus on study pressure, planning, motivation, and small actions
+- Keep responses supportive, calm, and practical
+- Limit response to 4–6 complete sentences
 
-Student Profile:
+Student Info:
 Name: {student.name}
 Year: {student.year}
 Branch: {student.branch.name}
@@ -891,16 +891,16 @@ CGPA: {cgpa}
 Upcoming Exams:
 {chr(10).join(upcoming_exams) if upcoming_exams else "None"}
 
-Pending Todos:
+Pending Tasks:
 {chr(10).join(pending_todos) if pending_todos else "None"}
 
-Assignments Due:
+Assignments:
 {chr(10).join(assignments_due) if assignments_due else "None"}
 
-Student Message:
+Student says:
 "{user_message}"
 
-Respond empathetically and give small, manageable suggestions.
+Respond like a calm academic coach.
 """
 
 def get_gemini_response(prompt: str) -> str:
@@ -908,46 +908,28 @@ def get_gemini_response(prompt: str) -> str:
         model=MODEL_NAME,
         contents=prompt,
         config={
-            "temperature": 0.4,
+            "temperature": 0.5,
             "max_output_tokens": 300
         }
     )
 
-    # 1️⃣ No candidates at all
-    if not response.candidates:
-        return "I'm here with you. Would you like to share a bit more about what's bothering you?"
-
-    candidate = response.candidates[0]
-
-    # 2️⃣ SAFETY STOP detected
-    if getattr(candidate, "finish_reason", None) == "SAFETY":
-        return (
-            "I hear you, and I’m really glad you reached out. Feeling low can be heavy, "
-            "especially with academic pressure. You don’t have to solve everything right now. "
-            "Let’s take this one small step at a time — what’s been weighing on you most today?"
-        )
-
-    # 3️⃣ Normal response — safely collect text
     full_text = []
-    if candidate.content and candidate.content.parts:
-        for part in candidate.content.parts:
-            if hasattr(part, "text") and part.text:
+
+    if response.candidates:
+        for part in response.candidates[0].content.parts:
+            if hasattr(part, "text"):
                 full_text.append(part.text)
 
-    final = "".join(full_text).strip()
+    reply = "".join(full_text).strip()
 
-    # 4️⃣ Last-resort fallback
-    if not final:
+    if not reply or reply.endswith(("and", "it", "that", "to")):
         return (
-            "I’m here to support you. Even small feelings matter. "
-            "Would you like to talk about what made today difficult?"
+            "I can see that academics feel overwhelming right now. "
+            "Let’s slow this down and focus on one small step you can take today. "
+            "You don’t need to fix everything at once."
         )
 
-    return final
-
-
-
-
+    return reply
 
 class ChatbotResource(Resource):
     @jwt_required()
@@ -957,22 +939,10 @@ class ChatbotResource(Resource):
         args = parser.parse_args()
 
         student_id = get_jwt_identity()
-
         student = Student.query.get(student_id)
+
         if not student:
             return {"error": "Student not found"}, 404
-
-        # Severe distress check
-        if is_severe_distress(args["message"]):
-            return {
-                "reply": (
-                    "I'm really sorry you're feeling this way. "
-                    "You don't have to go through this alone. "
-                    "Please consider talking to a trusted friend, "
-                    "family member, or a mental health professional. "
-                    "If you feel unsafe, seek immediate help."
-                )
-            }, 200
 
         # Fetch academic context
         todos = Todo.query.filter_by(
@@ -993,7 +963,7 @@ class ChatbotResource(Resource):
             student_id=student_id
         ).order_by(Grades.sem.desc()).all()
 
-        # Build prompt
+        # Build Gemini prompt
         prompt = build_prompt(
             student=student,
             todos=todos,
@@ -1003,7 +973,7 @@ class ChatbotResource(Resource):
             user_message=args["message"]
         )
 
-        # AI response
+        # Get AI response
         reply = get_gemini_response(prompt)
 
         return {"reply": reply}, 200
