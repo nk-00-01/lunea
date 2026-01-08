@@ -848,6 +848,8 @@ class AIPlanner(Resource):
 
         
 # AI CHATBOT
+# AI CHATBOT - FIXED VERSION
+
 DANGER_KEYWORDS = [
     "kill myself", "end my life", "suicide",
     "give up on life", "can't go on",
@@ -869,13 +871,15 @@ def build_prompt(student, todos, exams, assignments, grades, user_message):
         for a in assignments
     ]
     cgpa = grades[0].cgpa if grades else "Not available"
-
+    
     return f"""
 You are an academic mentor helping a college student regain focus and confidence.
+
 Rules:
 - Do NOT act as a therapist or doctor.
 - Focus on study pressure, planning, motivation, and small actions.
-- Limit response to 4–6 complete sentences.
+- Give a complete, coherent response in 4-6 sentences.
+- Always finish your thoughts completely.
 
 Student Info:
 Name: {student.name}, Year: {student.year}, Branch: {student.branch.name}, CGPA: {cgpa}
@@ -885,7 +889,8 @@ Pending Tasks: {', '.join(pending_todos) if pending_todos else "None"}
 Assignments: {', '.join(assignments_due) if assignments_due else "None"}
 
 Student says: "{user_message}"
-Respond like a calm academic coach.
+
+Respond like a calm academic coach with complete sentences.
 """
 
 def get_gemini_response(prompt: str) -> str:
@@ -894,27 +899,49 @@ def get_gemini_response(prompt: str) -> str:
             model=MODEL_NAME,
             contents=prompt,
             config={
-                "temperature": 0.7,      # Increased slightly for better "motivation" talk
-                "max_output_tokens": 500  # Increased to ensure a full paragraph fits
+                "temperature": 0.7,
+                "max_output_tokens": 800,  # Increased to ensure full response
+                "top_p": 0.9,
+                "top_k": 40
             }
         )
-
-        # 1. Check if the response was blocked by safety filters
-        if not response.candidates or not response.candidates[0].content.parts:
+        
+        # Check if response was blocked
+        if not response.candidates:
+            print("Response blocked by safety filters")
             return "I'm here to support you. Let's take a deep breath and look at one small thing we can finish today to get your momentum back."
-
-        # 2. Use the .text attribute - it automatically joins all parts for you
-        reply = response.text.strip()
-
-        # 3. Handle rare cases where the API returns an empty string
+        
+        # Get the first candidate
+        candidate = response.candidates[0]
+        
+        # Check if content exists
+        if not candidate.content or not candidate.content.parts:
+            print("No content in response")
+            return "I can see you're looking for support. Sometimes starting is the hardest part—let's pick your easiest task and just do 5 minutes of it."
+        
+        # Extract text from all parts and join them
+        reply_parts = []
+        for part in candidate.content.parts:
+            if hasattr(part, 'text') and part.text:
+                reply_parts.append(part.text)
+        
+        reply = ' '.join(reply_parts).strip()
+        
+        # Handle empty response
         if not reply:
-            raise ValueError("Empty response from AI")
-
+            print("Empty response after processing")
+            return "I understand you're reaching out. Let's focus on one small achievable goal today that can help build your momentum."
+        
+        # Log the response length for debugging
+        print(f"Gemini response length: {len(reply)} characters")
+        
         return reply
-
+        
     except Exception as e:
-        print(f"Gemini Error: {e}")
-        return "I can see you're looking for a boost. Sometimes starting is the hardest part—let's pick your easiest task from your list and just do 5 minutes of it."
+        print(f"Gemini Error: {type(e).__name__}: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return "I'm here to help you navigate your academic journey. Let's start by identifying one task from your list that we can tackle together right now."
 
 class ChatbotResource(Resource):
     @jwt_required()
@@ -922,27 +949,46 @@ class ChatbotResource(Resource):
         parser = reqparse.RequestParser()
         parser.add_argument("message", type=str, required=True)
         args = parser.parse_args()
-
+        
         student_id = get_jwt_identity()
         student = Student.query.get(student_id)
-
+        
         if not student:
             return {"error": "Student not found"}, 404
-
+        
         # Distress Check
         if is_severe_distress(args["message"]):
-            return {"reply": "I'm sorry you're feeling this way. Please reach out to a trusted friend or professional. For now, let's try to focus on just one small task together."}, 200
-
+            return {
+                "reply": "I'm sorry you're feeling this way. Please reach out to a trusted friend or professional. For now, let's try to focus on just one small task together."
+            }, 200
+        
         # Fetch Context
         todos = Todo.query.filter_by(student_id=student_id, done=False).all()
-        exams = Exam.query.filter(Exam.student_id == student_id, Exam.date >= date.today()).all()
-        assignments = Assignment.query.join(Subject).filter(Subject.student_id == student_id, Assignment.status != "Completed").all()
-        grades = Grades.query.filter_by(student_id=student_id).order_by(Grades.sem.desc()).all()
-
+        exams = Exam.query.filter(
+            Exam.student_id == student_id, 
+            Exam.date >= date.today()
+        ).all()
+        assignments = Assignment.query.join(Subject).filter(
+            Subject.student_id == student_id, 
+            Assignment.status != "Completed"
+        ).all()
+        grades = Grades.query.filter_by(
+            student_id=student_id
+        ).order_by(Grades.sem.desc()).all()
+        
+        # Build prompt
         prompt = build_prompt(student, todos, exams, assignments, grades, args["message"])
+        
+        # Get AI response
         reply = get_gemini_response(prompt)
-
-        return {"reply": reply}, 200
+        
+        # Log for debugging
+        print(f"Sending reply with {len(reply)} characters")
+        
+        # Return response with explicit encoding
+        return {
+            "reply": reply
+        }, 200, {'Content-Type': 'application/json; charset=utf-8'}
 
 api.add_resource(ChatbotResource, "/api/chatbot")
 api.add_resource(BranchList, "/api/branches")
