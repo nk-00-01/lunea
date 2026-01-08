@@ -3,35 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <title>StudentAI</title>
-    <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Index CSS -->
+    <link rel="stylesheet" href="index.css">
 </head>
-<body>
 
-<div class="navbar">
-    <h2>StudentAI</h2>
-    <div>
-        <a href="login.html">Login</a>
-        <a href="register.html">Register</a>
+<body class="min-h-screen flex flex-col bg-gradient-to-br from-[#020617] via-[#020617] to-[#042f2e] text-white overflow-hidden">
+
+    <!-- SYMBOL BACKGROUND (ONLY THIS ANIMATES) -->
+    <div class="falling-container">
+        <span>∑</span>
+        <span>π</span>
+        <span>√</span>
+        <span>📐</span>
+        <span>✏️</span>
+        <span>🖊️</span>
+        <span>E = mc²</span>
+        <span>∫</span>
+        <span>📏</span>
+        <span>θ</span>
     </div>
-</div>
 
-<section class="hero">
-    <div class="hero-content">
-        <h1>AI-Powered Student Dashboard</h1>
-        <p>
-            StudentAI helps students plan studies, identify weak areas,
-            manage exams, explore hackathons, and reduce academic stress
-            using intelligent insights.
-        </p>
-        <a href="register.html">
-            <button class="cta-btn">Get Started</button>
-        </a>
-    </div>
-</section>
+    <!-- NAVBAR -->
+    <nav class="navbar-glass px-12 py-5 flex justify-between items-center relative z-10">
+        <h2 class="brand-text">StudentAI</h2>
 
-<footer class="footer">
-    <p>© 2025 StudentAI Dashboard</p>
-</footer>
+        <div class="flex gap-10 text-sm md:text-base">
+            <a href="login.html" class="nav-link">Login</a>
+            <a href="register.html" class="nav-link">Register</a>
+        </div>
+    </nav>
+
+    <!-- HERO -->
+    <section class="flex-1 flex items-center justify-center text-center px-6 relative z-10">
+        <div class="max-w-5xl">
+
+            <h1 class="hero-title">
+                Smart Learning<br>Powered by AI
+            </h1>
+
+            <p class="hero-text">
+                Plan smarter • Learn better  • Achieve more with AI guidance
+               
+            </p>
+
+            <a href="register.html">
+                <button class="cta-button mt-14">
+                    Start Journey 🚀
+                </button>
+            </a>
+
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="text-center py-5 text-sm text-gray-400 relative z-10">
+        © 2025 StudentAI Dashboard
+    </footer>
 
 </body>
 </html>
