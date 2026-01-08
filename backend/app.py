@@ -1001,23 +1001,58 @@ class RoadmapResource(Resource):
         level = data.get("level", "beginner")
 
         if not topic:
-            return {"error": "Topic required"}, 400
+            return {"error": "Topic is required"}, 400
 
-        phases = generate_phases(topic, level)
+        prompt = f"""
+Create a learning roadmap.
 
-        roadmap = {
-            "title": topic,
-            "level": level,
-            "phases": []
-        }
+STRICT RULES:
+- Output ONLY valid JSON
+- No markdown
+- No explanations
+- Keep it SHORT
+- Max 4 phases
+- Max 4 topics per phase
 
-        for i, phase in enumerate(phases, start=1):
-            topics = generate_phase_topics(topic, phase)
-            roadmap["phases"].append({
-                "phase": f"Phase {i}: {phase}",
-                "duration": "2–3 weeks",
-                "topics": topics
-            })
+JSON format:
+{{
+  "title": "{topic}",
+  "level": "{level}",
+  "phases": [
+    {{
+      "phase": "Phase 1",
+      "duration": "2-3 weeks",
+      "topics": ["item1", "item2"]
+    }}
+  ]
+}}
+"""
+
+        response = client.models.generate_content(
+            model=MODEL_NAME,
+            contents=prompt,
+            config={
+                "temperature": 0.0,
+                "max_output_tokens": 180
+            }
+        )
+
+        # extract text safely
+        text_parts = []
+        if response.candidates:
+            for part in response.candidates[0].content.parts:
+                if hasattr(part, "text"):
+                    text_parts.append(part.text)
+
+        raw = "".join(text_parts).strip()
+
+        try:
+            roadmap = safe_json_load(raw)
+        except Exception:
+            return {
+                "error": "AI returned broken JSON",
+                "raw": raw[:400]
+            }, 500
 
         return roadmap, 200
 
