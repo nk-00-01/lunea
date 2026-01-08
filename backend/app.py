@@ -896,15 +896,15 @@ Respond like a calm academic coach with complete sentences.
 def get_gemini_response(prompt: str) -> str:
     try:
         response = client.models.generate_content(
-            model=MODEL_NAME,
-            contents=prompt,
-            config={
-                "temperature": 0.7,
-                "max_output_tokens": 800,  # Increased to ensure full response
-                "top_p": 0.9,
-                "top_k": 40
-            }
-        )
+    model=MODEL_NAME,
+    contents=prompt,
+    config={
+        "temperature": 0.2,
+        "max_output_tokens": 800,
+        "response_mime_type": "application/json"
+    }
+)
+
         
         # Check if response was blocked
         if not response.candidates:
@@ -1005,149 +1005,83 @@ class RoadmapResource(Resource):
             return {"error": "Topic is required"}, 400
 
         prompt = f"""
-You are an expert learning mentor. Create a structured learning roadmap.
+You are an expert learning mentor.
 
-Topic: {topic}
-Level: {level}
+Generate a learning roadmap.
 
-Return ONLY a valid JSON object with this exact structure (no markdown, no code blocks, no explanations):
+STRICT RULES:
+- Return ONLY valid JSON
+- No markdown
+- No explanations
+- Max 3 phases ONLY
+- Each phase max 5 topics
+- Short topic names (no commas inside strings)
 
+JSON FORMAT:
 {{
   "title": "{topic}",
   "level": "{level}",
   "phases": [
     {{
-      "phase": "Phase 1: Foundation",
-      "duration": "2-3 weeks",
-      "topics": ["Topic 1", "Topic 2", "Topic 3"]
-    }},
-    {{
-      "phase": "Phase 2: Intermediate",
-      "duration": "3-4 weeks",
-      "topics": ["Topic 1", "Topic 2", "Topic 3"]
-    }},
-    {{
-      "phase": "Phase 3: Advanced",
-      "duration": "4-5 weeks",
-      "topics": ["Topic 1", "Topic 2", "Topic 3"]
+      "phase": "Phase 1",
+      "duration": "X weeks",
+      "topics": ["topic1", "topic2"]
     }}
   ]
 }}
-
-Create 3-5 phases with 3-5 topics each. Return ONLY the JSON, nothing else.
 """
 
+        response = client.models.generate_content(
+            model=MODEL_NAME,
+            contents=prompt,
+            config={
+                "temperature": 0.2,
+                "max_output_tokens": 400   # 🔥 LOWER = safer
+            }
+        )
+
+        # --- Extract raw text ---
+        raw = ""
+        if response.candidates:
+            for part in response.candidates[0].content.parts:
+                if hasattr(part, "text"):
+                    raw += part.text
+
+        raw = raw.strip()
+
+        # --- Attempt direct JSON parse ---
         try:
-            response = client.models.generate_content(
-                model=MODEL_NAME,
-                contents=prompt,
-                config={
-                    "temperature": 0.3,
-                    "max_output_tokens": 1000
-                }
-            )
+            return json.loads(raw), 200
+        except Exception:
+            pass
 
-            # Extract text from response
-            full_text = []
-            if response.candidates:
-                for part in response.candidates[0].content.parts:
-                    if hasattr(part, "text"):
-                        full_text.append(part.text)
-
-            raw = "".join(full_text).strip()
-            
-            # Log the raw response for debugging
-            print(f"Raw AI Response: {raw[:200]}...")
-
-            # Clean the response - remove markdown code blocks if present
-            raw = re.sub(r'^```json\s*', '', raw)
-            raw = re.sub(r'^```\s*', '', raw)
-            raw = re.sub(r'\s*```$', '', raw)
-            raw = raw.strip()
-
-            # Try to parse JSON
-            try:
-                roadmap = json.loads(raw)
-            except json.JSONDecodeError as e:
-                print(f"JSON Parse Error: {e}")
-                print(f"Problematic text: {raw}")
-                
-                # Fallback: Try to extract JSON using regex
-                json_match = re.search(r'\{.*\}', raw, re.DOTALL)
-                if json_match:
-                    try:
-                        roadmap = json.loads(json_match.group(0))
-                    except:
-                        return {
-                            "error": "Could not parse AI response",
-                            "raw": raw[:500]
-                        }, 500
-                else:
-                    return {
-                        "error": "No valid JSON found in response",
-                        "raw": raw[:500]
-                    }, 500
-
-            # Validate the structure
-            if not isinstance(roadmap, dict):
-                return {"error": "Invalid roadmap format"}, 500
-            
-            if "phases" not in roadmap:
-                return {"error": "Missing phases in roadmap"}, 500
-            
-            # Ensure required fields exist
-            roadmap.setdefault("title", topic)
-            roadmap.setdefault("level", level)
-            
-            # Validate phases
-            if not isinstance(roadmap["phases"], list) or len(roadmap["phases"]) == 0:
-                return {"error": "Invalid phases format"}, 500
-
-            # Return the roadmap wrapped in a "roadmap" key
-            return {"roadmap": roadmap}, 200
-
-        except Exception as e:
-            print(f"Roadmap Generation Error: {type(e).__name__}: {str(e)}")
-            import traceback
-            traceback.print_exc()
-            
-            # Return a fallback roadmap
+        # --- AUTO-FIX TRUNCATED JSON ---
+        try:
+            fixed = self.fix_json(raw)
+            return json.loads(fixed), 200
+        except Exception:
             return {
-                "roadmap": {
-                    "title": topic,
-                    "level": level,
-                    "phases": [
-                        {
-                            "phase": "Phase 1: Getting Started",
-                            "duration": "2-3 weeks",
-                            "topics": [
-                                "Understand the basics and fundamentals",
-                                "Set up your learning environment",
-                                "Complete introductory tutorials"
-                            ]
-                        },
-                        {
-                            "phase": "Phase 2: Building Foundation",
-                            "duration": "3-4 weeks",
-                            "topics": [
-                                "Practice core concepts",
-                                "Work on small projects",
-                                "Learn best practices"
-                            ]
-                        },
-                        {
-                            "phase": "Phase 3: Advanced Topics",
-                            "duration": "4-5 weeks",
-                            "topics": [
-                                "Explore advanced features",
-                                "Build real-world projects",
-                                "Join community and contribute"
-                            ]
-                        }
-                    ]
-                }
-            }, 200
+                "error": "AI response invalid",
+                "raw": raw
+            }, 500
 
+    def fix_json(self, text):
+        """
+        Attempts to repair truncated JSON
+        """
+        # Remove trailing broken strings
+        text = re.sub(r'("[^"]*)$', '"', text)
+
+        # Balance braces
+        open_braces = text.count("{")
+        close_braces = text.count("}")
+        text += "}" * (open_braces - close_braces)
+
+        open_brackets = text.count("[")
+        close_brackets = text.count("]")
+        text += "]" * (open_brackets - close_brackets)
+
+        return text
 
 api.add_resource(RoadmapResource, "/api/roadmap")
 api.add_resource(ChatbotResource, "/api/chatbot")
