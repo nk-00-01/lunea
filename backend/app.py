@@ -1004,20 +1004,18 @@ class RoadmapResource(Resource):
             return {"error": "Topic is required"}, 400
 
         prompt = f"""
-You are an expert learning mentor.
+Return ONLY valid JSON.
 
-Create a learning roadmap.
+STRICT:
+- Exactly 3 phases
+- Exactly 3 topics per phase
+- Each topic MAX 3 words
+- NO long sentences
+- NO explanations
+- NO markdown
 
-STRICT RULES (MUST FOLLOW):
-- Output ONLY valid JSON
-- No markdown
-- No explanations
-- No extra text
-- Max 3 phases ONLY
-- Max 3 topics per phase
-- Each topic must be SHORT (2–4 words)
+JSON ONLY:
 
-JSON FORMAT:
 {{
   "title": "{topic}",
   "level": "{level}",
@@ -1025,11 +1023,12 @@ JSON FORMAT:
     {{
       "phase": "Phase 1",
       "duration": "2 weeks",
-      "topics": ["Topic A", "Topic B", "Topic C"]
+      "topics": ["Topic 1", "Topic 2", "Topic 3"]
     }}
   ]
 }}
 """
+
 
         response = client.models.generate_content(
             model=MODEL_NAME,
