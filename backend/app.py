@@ -847,7 +847,138 @@ class AIPlanner(Resource):
 
 
         
+DANGER_KEYWORDS = [
+    "kill myself", "end my life", "suicide",
+    "give up on life", "can't go on",
+    "worthless", "no reason to live"
+]
 
+def is_severe_distress(text: str) -> bool:
+    text = text.lower()
+    return any(word in text for word in DANGER_KEYWORDS)
+
+def build_prompt(student, todos, exams, assignments, grades, user_message):
+    upcoming_exams = [
+        f"- {e.subject.name} on {e.date} (Difficulty: {e.difficulty})"
+        for e in exams if e.date >= date.today()
+    ]
+
+    pending_todos = [f"- {t.task}" for t in todos]
+    assignments_due = [
+        f"- {a.title} ({a.subject.name}) due on {a.due_date}"
+        for a in assignments
+    ]
+
+    cgpa = grades[0].cgpa if grades else "Not available"
+
+    return f"""
+You are a supportive academic wellness assistant for a college student.
+
+Your role:
+- Help with stress, anxiety, exam pressure, and workload
+- Be empathetic, calm, and practical
+- Give personalized advice using the student's academic data
+- You are NOT a therapist or doctor
+- Do NOT diagnose mental illness
+- If the student sounds severely distressed, encourage reaching a trusted person
+
+Student Profile:
+Name: {student.name}
+Year: {student.year}
+Branch: {student.branch.name}
+CGPA: {cgpa}
+
+Upcoming Exams:
+{chr(10).join(upcoming_exams) if upcoming_exams else "None"}
+
+Pending Todos:
+{chr(10).join(pending_todos) if pending_todos else "None"}
+
+Assignments Due:
+{chr(10).join(assignments_due) if assignments_due else "None"}
+
+Student Message:
+"{user_message}"
+
+Respond empathetically and give small, manageable suggestions.
+"""
+
+def get_gemini_response(prompt: str) -> str:
+    response = client.models.generate_content(
+        model=MODEL_NAME,
+        contents=prompt,
+        config={
+            "temperature": 0.4,
+            "max_output_tokens": 300
+        }
+    )
+
+    return response.text.strip()
+
+
+class ChatbotResource(Resource):
+    @jwt_required()
+    def post(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument("message", type=str, required=True)
+        args = parser.parse_args()
+
+        student_id = get_jwt_identity()
+
+        student = Student.query.get(student_id)
+        if not student:
+            return {"error": "Student not found"}, 404
+
+        # Severe distress check
+        if is_severe_distress(args["message"]):
+            return {
+                "reply": (
+                    "I'm really sorry you're feeling this way. "
+                    "You don't have to go through this alone. "
+                    "Please consider talking to a trusted friend, "
+                    "family member, or a mental health professional. "
+                    "If you feel unsafe, seek immediate help."
+                )
+            }, 200
+
+        # Fetch academic context
+        todos = Todo.query.filter_by(
+            student_id=student_id, done=False
+        ).all()
+
+        exams = Exam.query.filter(
+            Exam.student_id == student_id,
+            Exam.date >= date.today()
+        ).order_by(Exam.date).all()
+
+        assignments = Assignment.query.join(Subject).filter(
+            Subject.student_id == student_id,
+            Assignment.status != "Completed"
+        ).all()
+
+        grades = Grades.query.filter_by(
+            student_id=student_id
+        ).order_by(Grades.sem.desc()).all()
+
+        # Build prompt
+        prompt = build_prompt(
+            student=student,
+            todos=todos,
+            exams=exams,
+            assignments=assignments,
+            grades=grades,
+            user_message=args["message"]
+        )
+
+        # AI response
+        reply = get_gemini_response(prompt)
+
+        return {"reply": reply}, 200
+
+
+
+        
+api.add_resource(ChatbotResource, "/api/chatbot")
 api.add_resource(BranchList, "/api/branches")
 api.add_resource(login, '/api/login/')
 api.add_resource(register, '/api/register/', '/api/register/<string:id>')
