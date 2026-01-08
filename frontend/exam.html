@@ -1,200 +1,249 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Exam Schedule Planner | StudentAI</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exam Schedule Planner | StudentAI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
+        * {
+            font-family: 'Inter', sans-serif;
+        }
 
-<style>
-/* NAVBAR */
-.topbar{
-    background:#13121b;
-    color:#fff;
-    padding:12px 22px;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    position:sticky;
-    top:0;
-    z-index:99;
-}
-.brand{display:flex;gap:12px;align-items:center;font-weight:800;font-size:20px;}
-.mark{width:34px;height:34px;background:#ffffff10;border-radius:6px;display:flex;align-items:center;justify-content:center;}
-nav{display:flex;gap:16px;}
-a{color:#fff;text-decoration:none;font-weight:600;padding:6px 8px;border-radius:6px;}
-a.active{background:linear-gradient(90deg,#2b6ef6,#7c3aed);}
-a:hover{background:#1e1e2f}
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+            min-height: 100vh;
+        }
 
-/* GLOBAL */
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:Segoe UI,Arial;background:#f0f2f5;color:#222}
+        /* Floating Math Symbols Animation */
+        .math-symbol {
+            position: fixed;
+            font-size: 2rem;
+            opacity: 0.15;
+            pointer-events: none;
+            animation: float 20s infinite ease-in-out;
+            color: #38bdf8;
+        }
 
-/* DASHBOARD */
-.dashboard{
-    background:#1e1e2f;
-    padding:24px;
-}
-.dashboard h2{color:#fff;margin-bottom:16px}
-.dashboard-grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
-    gap:16px;
-}
-.dash-card{
-    background:#2a2a3f;
-    padding:18px;
-    border-radius:12px;
-    color:#fff;
-}
-.dash-value{
-    font-size:32px;
-    font-weight:800;
-    margin-top:6px;
-}
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 0.1;
+            }
+            25% {
+                transform: translateY(-100px) rotate(90deg);
+                opacity: 0.2;
+            }
+            50% {
+                transform: translateY(-50px) rotate(180deg);
+                opacity: 0.15;
+            }
+            75% {
+                transform: translateY(-120px) rotate(270deg);
+                opacity: 0.25;
+            }
+        }
 
-/* PAGE */
-.container{
-    max-width:1400px;
-    margin:20px auto;
-    background:white;
-    border-radius:16px;
-    overflow:hidden;
-}
-.header{
-    background:linear-gradient(135deg,#1e3c72,#2a5298);
-    color:white;
-    padding:40px;
-    text-align:center;
-}
-.content{padding:30px}
-.form-grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
-    gap:15px;
-}
-label{font-weight:600}
-input,select{
-    padding:10px;
-    border-radius:8px;
-    border:1px solid #ccc;
-    width:100%;
-}
-.btn{
-    background:#1e3c72;
-    color:white;
-    border:none;
-    padding:12px 18px;
-    border-radius:8px;
-    cursor:pointer;
-    font-weight:700;
-}
-.exam-card{
-    background:white;
-    padding:18px;
-    border-radius:12px;
-    border:1px solid #ddd;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-}
-.days-left{
-    background:#1e3c72;
-    color:white;
-    padding:8px 12px;
-    border-radius:6px;
-    font-weight:700;
-}
-.exam-list{display:grid;gap:15px;margin-top:20px}
-</style>
+        /* Navbar styling */
+        .navbar {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(56, 189, 248, 0.1);
+        }
+
+        /* Info cards */
+        .info-card {
+            background: #1a2332;
+            border: 1px solid rgba(56, 189, 248, 0.15);
+            backdrop-filter: blur(10px);
+        }
+
+        /* Dashboard cards */
+        .dash-card {
+            background: #1a2332;
+            border: 1px solid rgba(56, 189, 248, 0.2);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .dash-card:hover {
+            border-color: rgba(56, 189, 248, 0.5);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(56, 189, 248, 0.2);
+        }
+
+        /* Exam cards */
+        .exam-card {
+            background: #1a2332;
+            border: 1px solid rgba(56, 189, 248, 0.2);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .exam-card:hover {
+            border-color: rgba(56, 189, 248, 0.4);
+            transform: translateY(-2px);
+        }
+
+        /* Custom inputs */
+        input, select {
+            background: rgba(30, 41, 59, 0.6);
+            border: 1px solid rgba(56, 189, 248, 0.2);
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: rgba(56, 189, 248, 0.6);
+            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.1);
+        }
+
+        input::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        /* Button styling */
+        .gradient-button {
+            background: linear-gradient(135deg, #38bdf8 0%, #3b82f6 50%, #6366f1 100%);
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.3);
+        }
+
+        .gradient-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(59, 130, 246, 0.5);
+        }
+
+        .delete-button {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            transition: all 0.3s ease;
+        }
+
+        .delete-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(239, 68, 68, 0.4);
+        }
+    </style>
 </head>
+<body class="text-gray-100">
+    <!-- Floating Math Symbols Background -->
+    <div class="math-symbol" style="top: 10%; left: 5%; animation-delay: 0s;">√</div>
+    <div class="math-symbol" style="top: 20%; right: 10%; animation-delay: 2s; font-size: 1.5rem;">π</div>
+    <div class="math-symbol" style="top: 60%; left: 8%; animation-delay: 4s;">∑</div>
+    <div class="math-symbol" style="top: 70%; right: 15%; animation-delay: 1s; font-size: 2.5rem;">∞</div>
+    <div class="math-symbol" style="top: 40%; right: 5%; animation-delay: 3s;">∫</div>
+    <div class="math-symbol" style="top: 80%; left: 20%; animation-delay: 5s; font-size: 1.8rem;">∆</div>
 
-<body>
-
-<!-- NAVBAR -->
-<header class="topbar">
-    <div class="brand">
-        <div class="mark">🎓</div>
-        StudentAI
-    </div>
-    <nav>
-        <a href="dashboard.html">Dashboard</a>
-        <a href="planner.html">Planner</a>
-        <a class="active">Exams</a>
-        <a href="hackathon.html">Hackathons</a>
-        <a href="profile.html">Profile</a>
-        <a href="settings.html">Settings</a>
-        <a href="#" onclick="logout()">Logout</a>
+    <!-- Navbar -->
+    <nav class="navbar fixed top-0 left-0 right-0 z-50">
+        <div class="max-w-7xl mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <h2 class="text-2xl font-bold text-white">StudentAI</h2>
+                <div class="flex items-center gap-6">
+                    <a href="dashboard.html" class="text-gray-300 hover:text-cyan-400 transition-colors duration-300 font-medium">
+                        Home
+                    </a>
+                    <a href="chatbot.html" class="text-gray-300 hover:text-cyan-400 transition-colors duration-300 font-medium">
+                        Chatbot
+                    </a>
+                    <a href="index.html" class="text-gray-300 hover:text-red-400 transition-colors duration-300 font-medium" onclick="logout()">
+                        Logout
+                    </a>
+                </div>
+            </div>
+        </div>
     </nav>
-</header>
 
-<!-- DASHBOARD -->
-<section class="dashboard">
-    <h2>Dashboard Overview</h2>
-    <div class="dashboard-grid">
-        <div class="dash-card">
-            Total Exams
-            <div class="dash-value" id="totalExams">0</div>
-        </div>
-        <div class="dash-card">
-            Upcoming Exam
-            <div class="dash-value" id="upcomingExam">-</div>
-        </div>
-        <div class="dash-card">
-            Total Study Hours
-            <div class="dash-value" id="totalHours">0</div>
-        </div>
-        <div class="dash-card">
-            Today's Load
-            <div class="dash-value" id="todayLoad">0h</div>
+    <!-- Main Content -->
+    <div class="pt-24 pb-12 px-6 relative z-10">
+        <div class="max-w-7xl mx-auto">
+            <!-- Page Header -->
+            <div class="text-center mb-12">
+                <h1 class="text-5xl md:text-6xl font-bold mb-4 text-cyan-400">
+                    📚 Exam Schedule Planner
+                </h1>
+                <p class="text-xl text-gray-400">
+                    Plan your preparation effectively
+                </p>
+            </div>
+
+            <!-- Dashboard Overview -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+                <div class="dash-card rounded-2xl p-6">
+                    <div class="text-gray-400 text-sm mb-2">Total Exams</div>
+                    <div class="text-4xl font-bold text-cyan-400" id="totalExams">0</div>
+                </div>
+                <div class="dash-card rounded-2xl p-6">
+                    <div class="text-gray-400 text-sm mb-2">Upcoming Exam</div>
+                    <div class="text-2xl font-bold text-cyan-400" id="upcomingExam">-</div>
+                </div>
+                <div class="dash-card rounded-2xl p-6">
+                    <div class="text-gray-400 text-sm mb-2">Total Study Hours</div>
+                    <div class="text-4xl font-bold text-cyan-400" id="totalHours">0</div>
+                </div>
+                <div class="dash-card rounded-2xl p-6">
+                    <div class="text-gray-400 text-sm mb-2">Today's Load</div>
+                    <div class="text-4xl font-bold text-cyan-400" id="todayLoad">0h</div>
+                </div>
+            </div>
+
+            <!-- Add Exam Form -->
+            <div class="info-card rounded-2xl p-8 mb-12">
+                <h2 class="text-2xl font-bold text-white mb-6">Add New Exam</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                    <div>
+                        <label class="block text-gray-400 text-sm mb-2">Subject</label>
+                        <select id="subjectSelect" class="w-full px-4 py-3 rounded-lg">
+                            <option value="">Loading subjects...</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-gray-400 text-sm mb-2">Exam Date</label>
+                        <input type="date" id="examDate" class="w-full px-4 py-3 rounded-lg">
+                    </div>
+
+                    <div>
+                        <label class="block text-gray-400 text-sm mb-2">Difficulty</label>
+                        <select id="difficulty" class="w-full px-4 py-3 rounded-lg">
+                            <option value="">Select difficulty</option>
+                            <option value="Easy">Easy</option>
+                            <option value="Medium">Medium</option>
+                            <option value="Hard">Hard</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-gray-400 text-sm mb-2">Daily Study Time</label>
+                        <input type="time" id="studyTime" class="w-full px-4 py-3 rounded-lg">
+                    </div>
+                </div>
+
+                <button onclick="addExam()" class="gradient-button px-8 py-3 rounded-lg font-bold text-white">
+                    Add Exam
+                </button>
+            </div>
+
+            <!-- Exam List -->
+            <div>
+                <h2 class="text-3xl font-bold text-white mb-6">Your Exams</h2>
+                <div id="examList" class="grid gap-6">
+                    <!-- Exams will be populated here -->
+                </div>
+            </div>
         </div>
     </div>
-</section>
 
-<!-- EXAM PLANNER -->
-<div class="container">
-    <div class="header">
-        <h1>📚 Exam Schedule Planner</h1>
-        <p>Plan your preparation effectively</p>
-    </div>
+    <!-- Footer -->
+    <footer class="relative z-10 text-center py-8 text-gray-500 border-t border-gray-800">
+        <p>© 2025 StudentAI Dashboard</p>
+    </footer>
 
-    <div class="content">
-        <div class="form-grid">
-            <div>
-                <label>Subject</label>
-                <select id="subjectSelect">
-                    <option value="">Loading subjects...</option>
-                </select>
-            </div>
-
-            <div>
-                <label>Exam Date</label>
-                <input type="date" id="examDate">
-            </div>
-
-            <div>
-                <label>Difficulty</label>
-                <select id="difficulty">
-                    <option value="">Select difficulty</option>
-                    <option value="Easy">Easy</option>
-                    <option value="Medium">Medium</option>
-                    <option value="Hard">Hard</option>
-                </select>
-            </div>
-
-            <div>
-                <label>Daily Study Time</label>
-                <input type="time" id="studyTime">
-            </div>
-        </div>
-
-        <br>
-        <button class="btn" onclick="addExam()">Add Exam</button>
-
-        <div id="examList" class="exam-list"></div>
-    </div>
-</div>
-
-<script>
+    <script>
 const token = localStorage.getItem("token");
 let exams = [];
 
@@ -348,25 +397,42 @@ function displayExams() {
     const list = document.getElementById("examList");
     list.innerHTML = "";
 
+    if (exams.length === 0) {
+        list.innerHTML = `
+            <div class="exam-card rounded-2xl p-8 text-center">
+                <p class="text-gray-400 text-lg">No exams scheduled yet. Add your first exam!</p>
+            </div>
+        `;
+        return;
+    }
+
     exams.forEach(e => {
         const days = Math.ceil(
             (new Date(e.date) - new Date()) / 86400000
         );
 
+        const daysText = days > 0 ? `${days} days left` : days === 0 ? "Today" : "Past";
+        const daysColor = days > 7 ? "text-green-400" : days > 3 ? "text-yellow-400" : "text-red-400";
+
         list.innerHTML += `
-            <div class="exam-card">
-                <div>
-                    <h3>${e.subject}</h3>
-                    <p>Date: ${new Date(e.date).toDateString()}</p>
-                    <p>Difficulty: ${e.difficulty}</p>
-                    <p>Study Time: ${e.study_time}</p>
-                </div>
-                <div>
-                    <div class="days-left">
-                        ${days > 0 ? days + " days" : "Today"}
+            <div class="exam-card rounded-2xl p-6">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div class="flex-1">
+                        <h3 class="text-2xl font-bold text-white mb-2">${e.subject}</h3>
+                        <div class="space-y-1 text-gray-400">
+                            <p>📅 Date: <span class="text-cyan-400">${new Date(e.date).toDateString()}</span></p>
+                            <p>📊 Difficulty: <span class="text-cyan-400">${e.difficulty}</span></p>
+                            <p>⏱️ Study Time: <span class="text-cyan-400">${e.study_time}</span></p>
+                        </div>
                     </div>
-                    <br>
-                    <button class="btn" onclick="deleteExam(${e.id})">Delete</button>
+                    <div class="flex flex-col gap-3 items-end">
+                        <div class="px-6 py-3 rounded-lg font-bold ${daysColor} bg-opacity-20" style="background: rgba(56, 189, 248, 0.1);">
+                            ${daysText}
+                        </div>
+                        <button class="delete-button px-6 py-2 rounded-lg font-bold text-white" onclick="deleteExam(${e.id})">
+                            Delete
+                        </button>
+                    </div>
                 </div>
             </div>
         `;
@@ -382,8 +448,6 @@ function logout() {
 /* ---------- INIT ---------- */
 loadSubjects();
 loadExams();
-</script>
-
-
+    </script>
 </body>
 </html>
