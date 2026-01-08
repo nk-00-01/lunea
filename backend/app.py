@@ -993,7 +993,6 @@ class ChatbotResource(Resource):
 # ROADMAP GENERATOR - FIXED BACKEND
 
 
-
 class RoadmapResource(Resource):
     @jwt_required()
     def post(self):
@@ -1005,19 +1004,23 @@ class RoadmapResource(Resource):
             return {"error": "Topic is required"}, 400
 
         prompt = f"""
-You are an expert learning mentor.
+You are a learning mentor.
 
-Generate a learning roadmap.
+Create a HIGH-LEVEL learning roadmap.
 
-STRICT RULES:
-- Return ONLY valid JSON
-- No markdown
-- No explanations
-- Max 3 phases ONLY
+Topic: {topic}
+Level: {level}
+
+Rules:
+- Max 3 phases only
 - Each phase max 5 topics
-- Short topic names (no commas inside strings)
+- Short topic names
+- Educational only
 
-JSON FORMAT:
+Return ONLY valid JSON.
+Finish all strings.
+
+JSON format:
 {{
   "title": "{topic}",
   "level": "{level}",
@@ -1035,53 +1038,23 @@ JSON FORMAT:
             model=MODEL_NAME,
             contents=prompt,
             config={
-                "temperature": 0.2,
-                "max_output_tokens": 400   # 🔥 LOWER = safer
+                "temperature": 0.1,
+                "max_output_tokens": 1024
             }
         )
 
-        # --- Extract raw text ---
-        raw = ""
-        if response.candidates:
-            for part in response.candidates[0].content.parts:
-                if hasattr(part, "text"):
-                    raw += part.text
+        raw = extract_text(response)
+        raw = fix_common_json_issues(raw)
 
-        raw = raw.strip()
-
-        # --- Attempt direct JSON parse ---
         try:
             return json.loads(raw), 200
-        except Exception:
-            pass
-
-        # --- AUTO-FIX TRUNCATED JSON ---
-        try:
-            fixed = self.fix_json(raw)
-            return json.loads(fixed), 200
-        except Exception:
+        except Exception as e:
             return {
-                "error": "AI response invalid",
-                "raw": raw
+                "error": "AI response incomplete",
+                "raw": raw,
+                "details": str(e)
             }, 500
 
-    def fix_json(self, text):
-        """
-        Attempts to repair truncated JSON
-        """
-        # Remove trailing broken strings
-        text = re.sub(r'("[^"]*)$', '"', text)
-
-        # Balance braces
-        open_braces = text.count("{")
-        close_braces = text.count("}")
-        text += "}" * (open_braces - close_braces)
-
-        open_brackets = text.count("[")
-        close_brackets = text.count("]")
-        text += "]" * (open_brackets - close_brackets)
-
-        return text
 
 api.add_resource(RoadmapResource, "/api/roadmap")
 api.add_resource(ChatbotResource, "/api/chatbot")
