@@ -900,7 +900,7 @@ def get_gemini_response(prompt: str) -> str:
     contents=prompt,
     config={
         "temperature": 0.2,
-        "max_output_tokens": 180,
+        "max_output_tokens": 350,
         "response_mime_type": "application/json"
     }
 )
@@ -1070,11 +1070,25 @@ JSON FORMAT:
 
         return roadmap, 200
 
-
+raw = raw.replace("\n", "").replace("\t", "").strip()
 def safe_json_load(raw):
-    start = raw.index("{")
-    end = raw.rindex("}") + 1
-    return json.loads(raw[start:end])
+    try:
+        start = raw.find("{")
+        end = raw.rfind("}")
+
+        if start == -1 or end == -1 or end <= start:
+            raise ValueError("No valid JSON object found")
+
+        cleaned = raw[start:end + 1]
+
+        # final safety check
+        json.loads(cleaned)
+
+        return json.loads(cleaned)
+
+    except Exception as e:
+        raise ValueError("Invalid JSON from AI") from e
+
 
 
 
