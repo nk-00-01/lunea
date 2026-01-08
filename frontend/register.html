@@ -3,42 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <title>Register - StudentAI</title>
-    <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Universal CSS -->
+    <link rel="stylesheet" href="register.css">
 </head>
-<body>
+<body class="min-h-screen flex flex-col bg-gradient-to-br from-[#020617] via-[#020617] to-[#042f2e] text-white ">
 
-<div class="register-hero">
-    <div class="register-box">
-        <h2>Register</h2>
-
-        <form id="registerForm">
-
-            <input type="text" id="id" placeholder="Student ID" required>
-            <input type="text" id="name" placeholder="Full Name" required>
-            <input type="number" id="age" placeholder="Age">
-            <input type="text" id="phone" placeholder="Mobile Number">
-
-            <select id="branch" required>
-                <option value="">Loading branches...</option>
-            </select>
-
-            <select id="year" required>
-                <option value="">Select Year</option>
-                <option value="1">1st Year</option>
-                <option value="2">2nd Year</option>
-                <option value="3">3rd Year</option>
-                <option value="4">4th Year</option>
-            </select>
-
-            <input type="password" id="password" placeholder="Password" required>
-            <input type="password" id="confirmPassword" placeholder="Confirm Password" required>
-
-            <button type="submit">Register</button>
-        </form>
-
-        <p>Already have an account? <a href="login.html">Login</a></p>
+    <!-- SYMBOL BACKGROUND -->
+    <div class="falling-container">
+        <span>∑</span>
+        <span>π</span>
+        <span>√</span>
+        <span>📐</span>
+        <span>✏️</span>
+        <span>🖊️</span>
+        <span>E = mc²</span>
+        <span>∫</span>
+        <span>📏</span>
+        <span>θ</span>
     </div>
-</div>
+
+    <!-- NAVBAR -->
+    <nav class="navbar-glass px-12 py-5 flex justify-between items-center relative z-10">
+        <a href="index.html" class="brand-text">StudentAI</a>
+
+        <div class="flex gap-10 text-sm md:text-base">
+            <a href="login.html" class="nav-link">Login</a>
+            <a href="register.html" class="nav-link">Register</a>
+        </div>
+    </nav>
+
+    <!-- REGISTER FORM -->
+    <section class="flex-1 flex items-center justify-center px-6 py-8 relative z-10">
+        <div class="form-box">
+            <h2>Register</h2>
+
+            <form id="registerForm">
+                <input type="text" id="id" placeholder="Student ID" required>
+                <input type="text" id="name" placeholder="Full Name" required>
+                <input type="number" id="age" placeholder="Age">
+                <input type="text" id="phone" placeholder="Mobile Number">
+
+                <select id="branch" required>
+                    <option value="">Loading branches...</option>
+                </select>
+
+                <select id="year" required>
+                    <option value="">Select Year</option>
+                    <option value="1">1st Year</option>
+                    <option value="2">2nd Year</option>
+                    <option value="3">3rd Year</option>
+                    <option value="4">4th Year</option>
+                </select>
+
+                <input type="password" id="password" placeholder="Password" required>
+                <input type="password" id="confirmPassword" placeholder="Confirm Password" required>
+
+                <button type="submit">Register</button>
+            </form>
+
+            <p>Already have an account? <a href="login.html">Login</a></p>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="text-center py-5 text-sm text-gray-400 relative z-10">
+        © 2025 StudentAI Dashboard
+    </footer>
 
 <script>
 /* ==============================
@@ -126,7 +161,5 @@ document.getElementById("registerForm").addEventListener("submit", async (e) => 
 });
 </script>
 
-
 </body>
 </html>
-
