@@ -913,15 +913,23 @@ def get_gemini_response(prompt: str) -> str:
         }
     )
 
-    # ✅ SAFELY CONCAT ALL TEXT PARTS
     full_text = []
 
-    if response.candidates:
-        for part in response.candidates[0].content.parts:
-            if hasattr(part, "text"):
-                full_text.append(part.text)
+    if hasattr(response, "candidates"):
+        for candidate in response.candidates:
+            if hasattr(candidate, "content") and candidate.content:
+                for part in candidate.content.parts:
+                    if hasattr(part, "text") and part.text:
+                        full_text.append(part.text)
 
-    return "".join(full_text).strip()
+    final_reply = "".join(full_text).strip()
+
+    # 🔥 ABSOLUTE SAFETY FALLBACK
+    if not final_reply and hasattr(response, "text"):
+        final_reply = response.text.strip()
+
+    return final_reply
+
 
 
 
