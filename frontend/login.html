@@ -3,23 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <title>Login - StudentAI</title>
-    <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Universal CSS -->
+    <link rel="stylesheet" href="login.css">
 </head>
-<body>
+<body class="min-h-screen flex flex-col bg-gradient-to-br from-[#020617] via-[#020617] to-[#042f2e] text-white">
 
-<div class="login-hero">
-    <div class="login-box">
-        <h2>Login</h2>
+    <!-- NAVBAR -->
+    <nav class="navbar-glass px-12 py-5 flex justify-between items-center relative z-10">
+        <a href="index.html" class="brand-text">StudentAI</a>
 
-        <form id="loginForm">
-            <input type="text" id="studentId" placeholder="Student ID" required>
-            <input type="password" id="password" placeholder="Password" required>
-            <button type="submit">Login</button>
-        </form>
+        <div class="flex gap-10 text-sm md:text-base">
+            <a href="login.html" class="nav-link">Login</a>
+            <a href="register.html" class="nav-link">Register</a>
+        </div>
+    </nav>
 
-        <p>New user? <a href="register.html">Register here</a></p>
-    </div>
-</div>
+    <!-- LOGIN FORM -->
+    <section class="flex-1 flex items-center justify-center px-6 relative z-10">
+        <div class="form-box">
+            <h2>Login</h2>
+
+            <form id="loginForm">
+                <input type="text" id="studentId" placeholder="Student ID" required>
+                <input type="password" id="password" placeholder="Password" required>
+                <button type="submit">Login</button>
+            </form>
+
+            <p>New user? <a href="register.html">Register here</a></p>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="text-center py-5 text-sm text-gray-400 relative z-10">
+        © 2025 StudentAI Dashboard
+    </footer>
 
 <script>
 const form = document.getElementById('loginForm');
@@ -58,7 +80,6 @@ form.addEventListener('submit', async (e) => {
     }
 });
 </script>
-
 
 </body>
 </html>
