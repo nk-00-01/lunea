@@ -900,7 +900,7 @@ def get_gemini_response(prompt: str) -> str:
     contents=prompt,
     config={
         "temperature": 0.2,
-        "max_output_tokens": 350,
+        "max_output_tokens": 3500,
         "response_mime_type": "application/json"
     }
 )
