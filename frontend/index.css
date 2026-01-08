@@ -1,0 +1,220 @@
+        /* =========================
+        FONT
+        ========================= */
+        @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&display=swap');
+
+        body {
+            font-family: 'Manrope', sans-serif;
+        }
+
+        /* =========================
+        NAVBAR
+        ========================= */
+        .navbar-glass {
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(14px);
+            border-bottom: 1px solid rgba(255,255,255,0.12);
+        }
+
+        .brand-text {
+            font-size: 1.7rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: #e0f2fe;
+        }
+
+        /* =========================
+        NAV LINKS
+        ========================= */
+        .nav-link {
+            color: #cbd5f5;
+            font-weight: 500;
+            position: relative;
+        }
+
+        .nav-link:hover {
+            color: #67e8f9;
+        }
+
+        /* =========================
+        HERO TEXT (NO ANIMATION)
+        ========================= */
+        .hero-title {
+            font-size: clamp(2.8rem, 6vw, 4rem);
+            font-weight: 700;
+            line-height: 1.15;
+            color: #e0f2fe;
+            margin-bottom: 1.5rem;
+        }
+
+        .hero-text {
+            font-size: 1.15rem;
+            color: #cbd5e1;
+            max-width: 720px;
+            margin: 0 auto;
+        }
+
+        /* =========================
+        CTA BUTTON (STATIC)
+        ========================= */
+        .cta-button {
+            padding: 16px 58px;
+            font-size: 17px;
+            border-radius: 999px;
+            background: linear-gradient(135deg, #22d3ee, #6366f1);
+            color: white;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 18px 40px rgba(99,102,241,0.45);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 28px 55px rgba(34,211,238,0.6);
+        }
+
+        /* =========================
+        FALLING SYMBOLS (ONLY ANIMATION)
+        ========================= */
+        .falling-container {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .falling-container span {
+            position: absolute;
+            top: -10%;
+            font-size: 2rem;
+            color: rgba(103,232,249,0.45); /* brighter */
+            animation: fall linear infinite;
+        }
+
+        /* spacing + speed */
+        .falling-container span:nth-child(1) { left: 5%; animation-duration: 14s; }
+        .falling-container span:nth-child(2) { left: 15%; animation-duration: 10s; }
+        .falling-container span:nth-child(3) { left: 25%; animation-duration: 16s; }
+        .falling-container span:nth-child(4) { left: 38%; animation-duration: 12s; }
+        .falling-container span:nth-child(5) { left: 50%; animation-duration: 18s; }
+        .falling-container span:nth-child(6) { left: 62%; animation-duration: 13s; }
+        .falling-container span:nth-child(7) { left: 72%; animation-duration: 20s; }
+        .falling-container span:nth-child(8) { left: 82%; animation-duration: 11s; }
+        .falling-container span:nth-child(9) { left: 90%; animation-duration: 15s; }
+        .falling-container span:nth-child(10){ left: 45%; animation-duration: 22s; }
+
+        @keyframes fall {
+            from { transform: translateY(-10%); }
+            to { transform: translateY(120vh); }
+        }
+        /* =========================
+        FONT
+        ========================= */
+        @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&display=swap');
+
+        body {
+            font-family: 'Manrope', sans-serif;
+        }
+
+        /* =========================
+        NAVBAR
+        ========================= */
+        .navbar-glass {
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(14px);
+            border-bottom: 1px solid rgba(255,255,255,0.12);
+        }
+
+        .brand-text {
+            font-size: 1.7rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: #e0f2fe;
+        }
+
+        /* =========================
+        NAV LINKS
+        ========================= */
+        .nav-link {
+            color: #cbd5f5;
+            font-weight: 500;
+            position: relative;
+        }
+
+        .nav-link:hover {
+            color: #67e8f9;
+        }
+
+        /* =========================
+        HERO TEXT (NO ANIMATION)
+        ========================= */
+        .hero-title {
+            font-size: clamp(2.8rem, 6vw, 4rem);
+            font-weight: 700;
+            line-height: 1.15;
+            color: #e0f2fe;
+            margin-bottom: 1.5rem;
+        }
+
+        .hero-text {
+            font-size: 1.15rem;
+            color: #cbd5e1;
+            max-width: 720px;
+            margin: 0 auto;
+        }
+
+        /* =========================
+        CTA BUTTON (STATIC)
+        ========================= */
+        .cta-button {
+            padding: 16px 58px;
+            font-size: 17px;
+            border-radius: 999px;
+            background: linear-gradient(135deg, #22d3ee, #6366f1);
+            color: white;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 18px 40px rgba(99,102,241,0.45);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 28px 55px rgba(34,211,238,0.6);
+        }
+
+        /* =========================
+        FALLING SYMBOLS (ONLY ANIMATION)
+        ========================= */
+        .falling-container {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .falling-container span {
+            position: absolute;
+            top: -10%;
+            font-size: 2rem;
+            color: rgba(103,232,249,0.45); /* brighter */
+            animation: fall linear infinite;
+        }
+
+        /* spacing + speed */
+        .falling-container span:nth-child(1) { left: 5%; animation-duration: 14s; }
+        .falling-container span:nth-child(2) { left: 15%; animation-duration: 10s; }
+        .falling-container span:nth-child(3) { left: 25%; animation-duration: 16s; }
+        .falling-container span:nth-child(4) { left: 38%; animation-duration: 12s; }
+        .falling-container span:nth-child(5) { left: 50%; animation-duration: 18s; }
+        .falling-container span:nth-child(6) { left: 62%; animation-duration: 13s; }
+        .falling-container span:nth-child(7) { left: 72%; animation-duration: 20s; }
+        .falling-container span:nth-child(8) { left: 82%; animation-duration: 11s; }
+        .falling-container span:nth-child(9) { left: 90%; animation-duration: 15s; }
+        .falling-container span:nth-child(10){ left: 45%; animation-duration: 22s; }
+
+        @keyframes fall {
+            from { transform: translateY(-10%); }
+            to { transform: translateY(120vh); }
+        }
