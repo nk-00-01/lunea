@@ -550,8 +550,14 @@ class TodoResource(Resource):
         student = Student.query.filter_by(id=student_id).first()
         if not student:
             return {"error": "Student not found"}, 404
-        
-        todo = Todo(task=data["task"], student_id=student.id)
+            
+        # ADDED PART!!!!!!!!!!!!!!!!!!!
+        todo = Todo(
+    task=data["task"], 
+    description=data.get("description"), # If you add it
+    student_id=student.id
+    # Ensure you add 'date' to the Todo model or handle it here
+)
         db.session.add(todo)
         db.session.commit()
         return {"success": "Todo added", "id": todo.id}, 201
