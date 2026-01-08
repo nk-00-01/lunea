@@ -913,22 +913,38 @@ def get_gemini_response(prompt: str) -> str:
         }
     )
 
+    # 1️⃣ No candidates at all
+    if not response.candidates:
+        return "I'm here with you. Would you like to share a bit more about what's bothering you?"
+
+    candidate = response.candidates[0]
+
+    # 2️⃣ SAFETY STOP detected
+    if getattr(candidate, "finish_reason", None) == "SAFETY":
+        return (
+            "I hear you, and I’m really glad you reached out. Feeling low can be heavy, "
+            "especially with academic pressure. You don’t have to solve everything right now. "
+            "Let’s take this one small step at a time — what’s been weighing on you most today?"
+        )
+
+    # 3️⃣ Normal response — safely collect text
     full_text = []
+    if candidate.content and candidate.content.parts:
+        for part in candidate.content.parts:
+            if hasattr(part, "text") and part.text:
+                full_text.append(part.text)
 
-    if hasattr(response, "candidates"):
-        for candidate in response.candidates:
-            if hasattr(candidate, "content") and candidate.content:
-                for part in candidate.content.parts:
-                    if hasattr(part, "text") and part.text:
-                        full_text.append(part.text)
+    final = "".join(full_text).strip()
 
-    final_reply = "".join(full_text).strip()
+    # 4️⃣ Last-resort fallback
+    if not final:
+        return (
+            "I’m here to support you. Even small feelings matter. "
+            "Would you like to talk about what made today difficult?"
+        )
 
-    # 🔥 ABSOLUTE SAFETY FALLBACK
-    if not final_reply and hasattr(response, "text"):
-        final_reply = response.text.strip()
+    return final
 
-    return final_reply
 
 
 
