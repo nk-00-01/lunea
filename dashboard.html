@@ -2,56 +2,233 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard | StudentAI</title>
-    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+            min-height: 100vh;
+        }
+
+        /* Floating Math Symbols Animation */
+        .math-symbol {
+            position: fixed;
+            font-size: 2rem;
+            opacity: 0.15;
+            pointer-events: none;
+            animation: float 20s infinite ease-in-out;
+            color: #38bdf8;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 0.1;
+            }
+            25% {
+                transform: translateY(-100px) rotate(90deg);
+                opacity: 0.2;
+            }
+            50% {
+                transform: translateY(-50px) rotate(180deg);
+                opacity: 0.15;
+            }
+            75% {
+                transform: translateY(-120px) rotate(270deg);
+                opacity: 0.25;
+            }
+        }
+
+        /* Custom gradient button */
+        .gradient-button {
+            background: linear-gradient(135deg, #38bdf8 0%, #3b82f6 50%, #6366f1 100%);
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.3);
+        }
+
+        .gradient-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(59, 130, 246, 0.5);
+        }
+
+        /* Module cards styling */
+        .module-card {
+            background: rgba(30, 41, 59, 0.6);
+            border: 1px solid rgba(56, 189, 248, 0.2);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .module-card:hover {
+            background: rgba(30, 41, 59, 0.8);
+            border-color: rgba(56, 189, 248, 0.5);
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(56, 189, 248, 0.2);
+        }
+
+        /* Info cards */
+        .info-card {
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid rgba(56, 189, 248, 0.15);
+            backdrop-filter: blur(10px);
+        }
+
+        /* Navbar styling */
+        .navbar {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(56, 189, 248, 0.1);
+        }
+    </style>
 </head>
+<body class="text-gray-100">
+    <!-- Floating Math Symbols Background -->
+    <div class="math-symbol" style="top: 10%; left: 5%; animation-delay: 0s;">√</div>
+    <div class="math-symbol" style="top: 20%; right: 10%; animation-delay: 2s; font-size: 1.5rem;">π</div>
+    <div class="math-symbol" style="top: 60%; left: 8%; animation-delay: 4s;">∑</div>
+    <div class="math-symbol" style="top: 70%; right: 15%; animation-delay: 1s; font-size: 2.5rem;">∞</div>
+    <div class="math-symbol" style="top: 40%; right: 5%; animation-delay: 3s;">∫</div>
+    <div class="math-symbol" style="top: 80%; left: 20%; animation-delay: 5s; font-size: 1.8rem;">∆</div>
+    <div class="math-symbol" style="top: 15%; right: 25%; animation-delay: 6s;">E=mc²</div>
+    <div class="math-symbol" style="top: 50%; left: 15%; animation-delay: 7s; font-size: 2.2rem;">∂</div>
 
-<script src="dashboard.js"></script>
+    <!-- Navbar -->
+    <nav class="navbar fixed top-0 left-0 right-0 z-50">
+        <div class="max-w-7xl mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <h2 class="text-2xl font-bold bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-500 bg-clip-text text-transparent" style="color: #22d3ee">StudentAI</h2>
+                <div class="flex items-center gap-6">
+                    <a href="dashboard.html" class="text-gray-300 hover:text-cyan-400 transition-colors duration-300 font-medium">
+                        Home
+                    </a>
+                    <a href="chatbot.html" class="text-gray-300 hover:text-cyan-400 transition-colors duration-300 font-medium">
+                        Chatbot
+                    </a>
+                    <a href="index.html" class="text-gray-300 hover:text-red-400 transition-colors duration-300 font-medium">
+                        Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
 
+    <!-- Main Content -->
+    <div class="pt-24 pb-12 px-6 relative z-10">
+        <div class="max-w-7xl mx-auto">
+            <!-- Welcome Section -->
+            <div class="text-center mb-16">
+                <h1 class="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-500 bg-clip-text text-transparent" style="color: #22d3ee">
+                    Welcome, <span id="studentName">Student</span>
+                </h1>
+                <p class="text-xl text-gray-400 mb-8">
+                    Plan smarter 
+                </p>
+                
+                <!-- Student Info Cards -->
+                <div class="flex flex-wrap justify-center gap-4 mb-12">
+                    <div class="info-card px-6 py-3 rounded-xl">
+                        <span class="text-gray-400">Year:</span>
+                        <span id="studentYear" class="ml-2 text-cyan-400 font-semibold"></span>
+                    </div>
+                    <div class="info-card px-6 py-3 rounded-xl">
+                        <span class="text-gray-400">Branch:</span>
+                        <span id="studentBranch" class="ml-2 text-cyan-400 font-semibold"></span>
+                    </div>
+                    <div class="info-card px-6 py-3 rounded-xl">
+                        <span class="text-gray-400">Department:</span>
+                        <span id="studentDept" class="ml-2 text-cyan-400 font-semibold"></span>
+                    </div>
+                </div>
+            </div>
 
-<body>
+            <!-- Quick Info Section -->
+            <div class="grid md:grid-cols-2 gap-8 mb-16">
+                <!-- Subjects -->
+                <div class="info-card rounded-2xl p-6">
+                    <h3 class="text-2xl font-bold mb-4 text-cyan-400 flex items-center gap-2">
+                        <span>📚</span> Your Subjects
+                    </h3>
+                    <ul id="subjectsList" class="space-y-2 text-gray-300">
+                        <!-- Will be populated by JavaScript -->
+                    </ul>
+                </div>
 
-<div class="navbar">
-    <h2>StudentAI</h2>
-    <div>
-        <a href="dashboard.html">Dashboard</a>
-        <a href="planner.html">Planner</a>
-        <a href="exam.html">Exams</a>
-        <a href="hackathon.html">Hackathons</a>
-        <a href="profile.html">Profile</a>
-        <a href="settings.html">Settings</a>
-        <a href="index.html">Logout</a>
+                <!-- Upcoming Exams -->
+                <div class="info-card rounded-2xl p-6">
+                    <h3 class="text-2xl font-bold mb-4 text-cyan-400 flex items-center gap-2">
+                        <span>📝</span> Upcoming Exams
+                    </h3>
+                    <ul id="examsList" class="space-y-2 text-gray-300">
+                        <!-- Will be populated by JavaScript -->
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Modules Section -->
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-bold mb-4 text-white">Choose Your Module</h2>
+                <p class="text-gray-400">Navigate to different sections of your dashboard</p>
+            </div>
+
+            <!-- Module Cards Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
+                <!-- Study Planner -->
+                <a href="planner.html" class="module-card rounded-2xl p-8 text-center group cursor-pointer">
+                    <div class="text-5xl mb-4 transform group-hover:scale-110 transition-transform duration-300">📅</div>
+                    <h3 class="text-xl font-bold text-white mb-2">Study Planner</h3>
+                    <p class="text-gray-400 text-sm">Organize your study schedule</p>
+                </a>
+
+                <!-- Exams -->
+                <a href="exam.html" class="module-card rounded-2xl p-8 text-center group cursor-pointer">
+                    <div class="text-5xl mb-4 transform group-hover:scale-110 transition-transform duration-300">📝</div>
+                    <h3 class="text-xl font-bold text-white mb-2">Exams</h3>
+                    <p class="text-gray-400 text-sm">Track your upcoming exams</p>
+                </a>
+
+                <!-- Subjects -->
+                <a href="subjects.html" class="module-card rounded-2xl p-8 text-center group cursor-pointer">
+                    <div class="text-5xl mb-4 transform group-hover:scale-110 transition-transform duration-300">📚</div>
+                    <h3 class="text-xl font-bold text-white mb-2">Subjects</h3>
+                    <p class="text-gray-400 text-sm">Manage your subjects</p>
+                </a>
+
+                <!-- Hackathons -->
+                <!-- <a href="hackathon.html" class="module-card rounded-2xl p-8 text-center group cursor-pointer">
+                    <div class="text-5xl mb-4 transform group-hover:scale-110 transition-transform duration-300">🚀</div>
+                    <h3 class="text-xl font-bold text-white mb-2">Hackathons</h3>
+                    <p class="text-gray-400 text-sm">Discover coding competitions</p>
+                </a> -->
+
+                <!-- Profile -->
+                <!-- <a href="profile.html" class="module-card rounded-2xl p-8 text-center group cursor-pointer">
+                    <div class="text-5xl mb-4 transform group-hover:scale-110 transition-transform duration-300">👤</div>
+                    <h3 class="text-xl font-bold text-white mb-2">Profile</h3>
+                    <p class="text-gray-400 text-sm">View and edit your profile</p>
+                </a> -->
+
+                <!-- Settings -->
+                <!-- <a href="settings.html" class="module-card rounded-2xl p-8 text-center group cursor-pointer">
+                    <div class="text-5xl mb-4 transform group-hover:scale-110 transition-transform duration-300">⚙️</div>
+                    <h3 class="text-xl font-bold text-white mb-2">Settings</h3>
+                    <p class="text-gray-400 text-sm">Customize your preferences</p>
+                </a> -->
+            </div>
+        </div>
     </div>
-</div>
-<!-- ADDED -->
-<div class="container">
-    <h1>Welcome, <span id="studentName">Student</span></h1>
-    <p>
-        Year: <span id="studentYear"></span> |
-        Branch: <span id="studentBranch"></span> |
-        Department: <span id="studentDept"></span>
-    </p>
 
-    <h3>Your Subjects</h3>
-    <ul id="subjectsList"></ul>
+    <!-- Footer -->
+    <footer class="relative z-10 text-center py-8 text-gray-500 border-t border-gray-800">
+        <p>© 2025 StudentAI Dashboard</p>
+    </footer>
 
-    <h3>Upcoming Exams</h3>
-    <ul id="examsList"></ul>
-    <h3>Choose Module</h3>
-
-    <div class="cards">
-        <a href="planner.html"><div class="card">📅 Study Planner</div></a>
-        <a href="exam.html"><div class="card">📝 Exams</div></a>
-        <a href="hackathon.html"><div class="card">🚀 Hackathons</div></a>
-        <a href="profile.html"><div class="card">👤 Profile</div></a>
-        <a href="settings.html"><div class="card">⚙️ Settings</div></a>
-    </div>
-</div>
-<!-- End of the added part  -->
-
-<footer class="footer">
-    <p>© 2025 StudentAI Dashboard</p>
-</footer>
-
+    <script src="dashboard.js"></script>
 </body>
 </html>
