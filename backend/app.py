@@ -890,28 +890,31 @@ Respond like a calm academic coach.
 
 def get_gemini_response(prompt: str) -> str:
     try:
-        # Increased max_output_tokens to 500 to prevent mid-sentence cuts
         response = client.models.generate_content(
             model=MODEL_NAME,
             contents=prompt,
             config={
-                "temperature": 0.6,
-                "max_output_tokens": 500
+                "temperature": 0.7,      # Increased slightly for better "motivation" talk
+                "max_output_tokens": 500  # Increased to ensure a full paragraph fits
             }
         )
-        
-        # Directly using .text is more reliable than looping through parts
-        if response and response.text:
-            reply = response.text.strip()
-            # Safety fallback if the AI stops abruptly
-            if reply.endswith(("and", "it", "that", "to", "you")):
-                return reply + "... Let's focus on taking one small step at a time."
-            return reply
-            
+
+        # 1. Check if the response was blocked by safety filters
+        if not response.candidates or not response.candidates[0].content.parts:
+            return "I'm here to support you. Let's take a deep breath and look at one small thing we can finish today to get your momentum back."
+
+        # 2. Use the .text attribute - it automatically joins all parts for you
+        reply = response.text.strip()
+
+        # 3. Handle rare cases where the API returns an empty string
+        if not reply:
+            raise ValueError("Empty response from AI")
+
+        return reply
+
     except Exception as e:
         print(f"Gemini Error: {e}")
-        
-    return "I can see that academics feel overwhelming right now. Let’s slow this down and focus on one small step you can take today."
+        return "I can see you're looking for a boost. Sometimes starting is the hardest part—let's pick your easiest task from your list and just do 5 minutes of it."
 
 class ChatbotResource(Resource):
     @jwt_required()
