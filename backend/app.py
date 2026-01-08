@@ -993,102 +993,226 @@ class ChatbotResource(Resource):
 # ROADMAP GENERATOR - FIXED BACKEND
 
 
+# ROADMAP GENERATOR - CORRECTED BACKEND
+
+import json
+import re
+
+def safe_json_load(raw):
+    """Extract and parse JSON from AI response"""
+    try:
+        # Remove whitespace
+        raw = raw.replace("\n", "").replace("\t", "").strip()
+        
+        # Remove markdown code blocks if present
+        raw = re.sub(r'^```json\s*', '', raw, flags=re.IGNORECASE)
+        raw = re.sub(r'^```\s*', '', raw)
+        raw = re.sub(r'\s*```$', '', raw)
+        raw = raw.strip()
+        
+        # Find JSON object boundaries
+        start = raw.find("{")
+        end = raw.rfind("}")
+        
+        if start == -1 or end == -1 or end <= start:
+            raise ValueError("No valid JSON object found")
+        
+        cleaned = raw[start:end + 1]
+        
+        # Parse and return
+        return json.loads(cleaned)
+        
+    except Exception as e:
+        print(f"JSON parsing error: {e}")
+        raise ValueError("Invalid JSON from AI") from e
+
+
 class RoadmapResource(Resource):
     @jwt_required()
     def post(self):
         data = request.get_json()
         topic = data.get("topic")
         level = data.get("level", "beginner")
-
+        
         if not topic:
             return {"error": "Topic is required"}, 400
-
+        
         prompt = f"""
-Return ONLY valid JSON.
+Return ONLY valid JSON with NO markdown, NO explanations, NO extra text.
 
-STRICT:
-- Exactly 3 phases
-- Exactly 3 topics per phase
-- Each topic MAX 3 words
-- NO long sentences
-- NO explanations
-- NO markdown
+Create a learning roadmap for: {topic} ({level} level)
 
-JSON ONLY:
+RULES:
+- Exactly 4 phases
+- 3-4 topics per phase
+- Keep topics SHORT (max 50 characters each)
+- NO long descriptions
 
+JSON format:
 {{
   "title": "{topic}",
   "level": "{level}",
   "phases": [
     {{
-      "phase": "Phase 1",
-      "duration": "2 weeks",
-      "topics": ["Topic 1", "Topic 2", "Topic 3"]
+      "phase": "Phase 1: Foundation",
+      "duration": "2-3 weeks",
+      "topics": ["Learn basics", "Setup environment", "First tutorial"]
+    }},
+    {{
+      "phase": "Phase 2: Practice",
+      "duration": "3-4 weeks",
+      "topics": ["Build projects", "Study concepts", "Debug code"]
+    }},
+    {{
+      "phase": "Phase 3: Advanced",
+      "duration": "4-5 weeks",
+      "topics": ["Advanced topics", "Best practices", "Real apps"]
+    }},
+    {{
+      "phase": "Phase 4: Master",
+      "duration": "Ongoing",
+      "topics": ["Open source", "Stay updated", "Help others"]
     }}
   ]
 }}
+
+Return ONLY the JSON object above with appropriate content for {topic}.
 """
-
-
-        response = client.models.generate_content(
-            model=MODEL_NAME,
-            contents=prompt,
-            config={
-                "temperature": 0.0,
-                "max_output_tokens": 180
-            }
-        )
-
-        text_parts = []
-        if response.candidates:
-            for part in response.candidates[0].content.parts:
-                if hasattr(part, "text"):
-                    text_parts.append(part.text)
-
-        raw = "".join(text_parts).strip()
-        print("RAW AI RESPONSE:", raw)
-
+        
         try:
-            roadmap = safe_json_load(raw)
-        except Exception:
-            roadmap = {
-                "title": topic,
-                "level": level,
-                "phases": [
+            response = client.models.generate_content(
+                model=MODEL_NAME,
+                contents=prompt,
+                config={
+                    "temperature": 0.3,
+                    "max_output_tokens": 1000  # Increased from 180
+                }
+            )
+            
+            # Extract text from response
+            text_parts = []
+            if response.candidates:
+                for part in response.candidates[0].content.parts:
+                    if hasattr(part, "text"):
+                        text_parts.append(part.text)
+            
+            raw = "".join(text_parts).strip()
+            
+            print("=" * 60)
+            print("RAW AI RESPONSE:")
+            print(raw)
+            print("=" * 60)
+            
+            # Try to parse the JSON
+            try:
+                roadmap = safe_json_load(raw)
+                print("✓ Successfully parsed roadmap")
+            except Exception as e:
+                print(f"✗ JSON parsing failed: {e}")
+                # Use fallback
+                roadmap = {
+                    "title": topic,
+                    "level": level,
+                    "phases": [
+                        {
+                            "phase": "Phase 1: Getting Started",
+                            "duration": "2-3 weeks",
+                            "topics": [
+                                "Learn the fundamentals",
+                                "Setup your environment",
+                                "Complete basic tutorials"
+                            ]
+                        },
+                        {
+                            "phase": "Phase 2: Building Foundation",
+                            "duration": "3-4 weeks",
+                            "topics": [
+                                "Practice core concepts",
+                                "Build small projects",
+                                "Study best practices"
+                            ]
+                        },
+                        {
+                            "phase": "Phase 3: Advanced Topics",
+                            "duration": "4-5 weeks",
+                            "topics": [
+                                "Explore advanced features",
+                                "Create real applications",
+                                "Learn debugging"
+                            ]
+                        },
+                        {
+                            "phase": "Phase 4: Mastery",
+                            "duration": "Ongoing",
+                            "topics": [
+                                "Contribute to community",
+                                "Keep learning new things",
+                                "Share your knowledge"
+                            ]
+                        }
+                    ]
+                }
+            
+            # Ensure required fields
+            roadmap.setdefault("title", topic)
+            roadmap.setdefault("level", level)
+            
+            # Validate phases exist
+            if "phases" not in roadmap or not roadmap["phases"]:
+                roadmap["phases"] = [
                     {
-                        "phase": "Phase 1",
-                        "duration": "2 weeks",
-                        "topics": [
-                            "Learn basics",
-                            "Follow tutorials",
-                            "Practice daily"
-                        ]
+                        "phase": "Phase 1: Start Learning",
+                        "duration": "2-3 weeks",
+                        "topics": ["Begin with basics", "Practice regularly", "Build confidence"]
                     }
                 ]
-            }
-
-        return roadmap, 200
-
-raw = raw.replace("\n", "").replace("\t", "").strip()
-def safe_json_load(raw):
-    try:
-        start = raw.find("{")
-        end = raw.rfind("}")
-
-        if start == -1 or end == -1 or end <= start:
-            raise ValueError("No valid JSON object found")
-
-        cleaned = raw[start:end + 1]
-
-        # final safety check
-        json.loads(cleaned)
-
-        return json.loads(cleaned)
-
-    except Exception as e:
-        raise ValueError("Invalid JSON from AI") from e
-
-
+            
+            # THE FIX: Wrap in "roadmap" key for frontend
+            return {"roadmap": roadmap}, 200
+            
+        except Exception as e:
+            print(f"=" * 60)
+            print(f"ERROR: {type(e).__name__}: {str(e)}")
+            import traceback
+            traceback.print_exc()
+            print("=" * 60)
+            
+            # Return fallback with proper structure
+            return {
+                "roadmap": {
+                    "title": topic,
+                    "level": level,
+                    "phases": [
+                        {
+                            "phase": "Phase 1: Foundation",
+                            "duration": "2-3 weeks",
+                            "topics": [
+                                "Learn basic concepts",
+                                "Follow tutorials",
+                                "Practice daily"
+                            ]
+                        },
+                        {
+                            "phase": "Phase 2: Practice",
+                            "duration": "3-4 weeks",
+                            "topics": [
+                                "Build small projects",
+                                "Solve problems",
+                                "Review code"
+                            ]
+                        },
+                        {
+                            "phase": "Phase 3: Advanced",
+                            "duration": "4-5 weeks",
+                            "topics": [
+                                "Study advanced topics",
+                                "Create real apps",
+                                "Deploy projects"
+                            ]
+                        }
+                    ]
+                }
+            }, 200
 
 
 api.add_resource(RoadmapResource, "/api/roadmap")
