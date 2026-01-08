@@ -990,6 +990,73 @@ class ChatbotResource(Resource):
             "reply": reply
         }, 200, {'Content-Type': 'application/json; charset=utf-8'}
 
+class RoadmapResource(Resource):
+    @jwt_required()
+    def post(self):
+        data = request.get_json()
+        topic = data.get("topic")
+        level = data.get("level", "beginner")
+
+        if not topic:
+            return {"error": "Topic is required"}, 400
+
+        prompt = f"""
+You are an expert learning mentor.
+
+Create a structured learning roadmap for:
+Topic: {topic}
+Level: {level}
+
+Rules:
+- Return ONLY valid JSON
+- No markdown
+- No explanations
+- No extra text
+
+JSON format:
+{{
+  "title": "<topic>",
+  "level": "<level>",
+  "phases": [
+    {{
+      "phase": "Phase 1: ...",
+      "duration": "X weeks/months",
+      "topics": ["item1", "item2"]
+    }}
+  ]
+}}
+"""
+
+        response = client.models.generate_content(
+            model=MODEL_NAME,
+            contents=prompt,
+            config={
+                "temperature": 0.3,
+                "max_output_tokens": 600
+            }
+        )
+
+        # SAFELY extract text
+        full_text = []
+        if response.candidates:
+            for part in response.candidates[0].content.parts:
+                if hasattr(part, "text"):
+                    full_text.append(part.text)
+
+        raw = "".join(full_text).strip()
+
+        try:
+            roadmap = json.loads(raw)
+        except Exception:
+            return {
+                "error": "AI response parsing failed",
+                "raw": raw
+            }, 500
+
+        return roadmap, 200
+
+
+api.add_resource(RoadmapResource, "/api/roadmap")
 api.add_resource(ChatbotResource, "/api/chatbot")
 api.add_resource(BranchList, "/api/branches")
 api.add_resource(login, '/api/login/')
