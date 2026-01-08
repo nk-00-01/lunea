@@ -913,7 +913,16 @@ def get_gemini_response(prompt: str) -> str:
         }
     )
 
-    return response.text.strip()
+    # ✅ SAFELY CONCAT ALL TEXT PARTS
+    full_text = []
+
+    if response.candidates:
+        for part in response.candidates[0].content.parts:
+            if hasattr(part, "text"):
+                full_text.append(part.text)
+
+    return "".join(full_text).strip()
+
 
 
 class ChatbotResource(Resource):
