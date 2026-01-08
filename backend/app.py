@@ -1001,59 +1001,25 @@ class RoadmapResource(Resource):
         level = data.get("level", "beginner")
 
         if not topic:
-            return {"error": "Topic is required"}, 400
+            return {"error": "Topic required"}, 400
 
-        prompt = f"""
-You are a learning mentor.
+        phases = generate_phases(topic, level)
 
-Create a HIGH-LEVEL learning roadmap.
+        roadmap = {
+            "title": topic,
+            "level": level,
+            "phases": []
+        }
 
-Topic: {topic}
-Level: {level}
+        for i, phase in enumerate(phases, start=1):
+            topics = generate_phase_topics(topic, phase)
+            roadmap["phases"].append({
+                "phase": f"Phase {i}: {phase}",
+                "duration": "2–3 weeks",
+                "topics": topics
+            })
 
-Rules:
-- Max 3 phases only
-- Each phase max 5 topics
-- Short topic names
-- Educational only
-
-Return ONLY valid JSON.
-Finish all strings.
-
-JSON format:
-{{
-  "title": "{topic}",
-  "level": "{level}",
-  "phases": [
-    {{
-      "phase": "Phase 1",
-      "duration": "X weeks",
-      "topics": ["topic1", "topic2"]
-    }}
-  ]
-}}
-"""
-
-        response = client.models.generate_content(
-            model=MODEL_NAME,
-            contents=prompt,
-            config={
-                "temperature": 0.1,
-                "max_output_tokens": 1024
-            }
-        )
-
-        raw = extract_text(response)
-        raw = fix_common_json_issues(raw)
-
-        try:
-            return json.loads(raw), 200
-        except Exception as e:
-            return {
-                "error": "AI response incomplete",
-                "raw": raw,
-                "details": str(e)
-            }, 500
+        return roadmap, 200
 
 
 api.add_resource(RoadmapResource, "/api/roadmap")
