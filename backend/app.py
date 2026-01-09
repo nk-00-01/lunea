@@ -59,6 +59,31 @@ api = Api(app)
 # )
 # print(resp.text)
 
+from google.genai import types
+
+roadmap_schema = types.Schema(
+    type=types.Type.OBJECT,
+    properties={
+        "title": types.Schema(type=types.Type.STRING),
+        "level": types.Schema(type=types.Type.STRING),
+        "phases": types.Schema(
+            type=types.Type.ARRAY,
+            items=types.Schema(
+                type=types.Type.OBJECT,
+                properties={
+                    "phase": types.Schema(type=types.Type.STRING),
+                    "duration": types.Schema(type=types.Type.STRING),
+                    "topics": types.Schema(
+                        type=types.Type.ARRAY,
+                        items=types.Schema(type=types.Type.STRING),
+                    ),
+                },
+                required=["phase", "duration", "topics"],
+            ),
+        ),
+    },
+    required=["title", "level", "phases"],
+)
 
 
 CORS(
@@ -995,8 +1020,6 @@ class ChatbotResource(Resource):
 
 # ROADMAP GENERATOR - CORRECTED BACKEND
 
-import json
-import re
 
 def safe_json_load(raw):
     """Extract and parse JSON from AI response"""
@@ -1033,186 +1056,116 @@ class RoadmapResource(Resource):
         data = request.get_json()
         topic = data.get("topic")
         level = data.get("level", "beginner")
-        
+
         if not topic:
             return {"error": "Topic is required"}, 400
-        
-        prompt = f"""
-Return ONLY valid JSON with NO markdown, NO explanations, NO extra text.
 
-Create a learning roadmap for: {topic} ({level} level)
+        # Short prompt, structure enforced by schema + JSON mode
+        prompt = (
+            f"Create a {level} learning roadmap for {topic}.\n\n"
+            "Rules:\n"
+            "- Exactly 4 phases.\n"
+            "- 3–4 topics per phase.\n"
+            "- Keep topics short (max ~50 characters).\n"
+            "- No long descriptions.\n"
+        )
 
-RULES:
-- Exactly 4 phases
-- 3-4 topics per phase
-- Keep topics SHORT (max 50 characters each)
-- NO long descriptions
-
-JSON format:
-{{
-  "title": "{topic}",
-  "level": "{level}",
-  "phases": [
-    {{
-      "phase": "Phase 1: Foundation",
-      "duration": "2-3 weeks",
-      "topics": ["Learn basics", "Setup environment", "First tutorial"]
-    }},
-    {{
-      "phase": "Phase 2: Practice",
-      "duration": "3-4 weeks",
-      "topics": ["Build projects", "Study concepts", "Debug code"]
-    }},
-    {{
-      "phase": "Phase 3: Advanced",
-      "duration": "4-5 weeks",
-      "topics": ["Advanced topics", "Best practices", "Real apps"]
-    }},
-    {{
-      "phase": "Phase 4: Master",
-      "duration": "Ongoing",
-      "topics": ["Open source", "Stay updated", "Help others"]
-    }}
-  ]
-}}
-
-Return ONLY the JSON object above with appropriate content for {topic}.
-"""
-        
         try:
             response = client.models.generate_content(
                 model=MODEL_NAME,
                 contents=prompt,
-                config={
-                    "temperature": 0.3,
-                    "max_output_tokens": 1000  # Increased from 180
-                }
+                config=types.GenerateContentConfig(
+                    response_mime_type="application/json",
+                    response_schema=roadmap_schema,
+                    temperature=0.3,
+                    max_output_tokens=1000,
+                ),
             )
-            
-            # Extract text from response
-            text_parts = []
-            if response.candidates:
-                for part in response.candidates[0].content.parts:
-                    if hasattr(part, "text"):
-                        text_parts.append(part.text)
-            
-            raw = "".join(text_parts).strip()
-            
+
+            raw = response.text or ""
             print("=" * 60)
-            print("RAW AI RESPONSE:")
+            print("RAW AI RESPONSE (roadmap JSON):")
             print(raw)
             print("=" * 60)
-            
-            # Try to parse the JSON
+
             try:
-                roadmap = safe_json_load(raw)
-                print("✓ Successfully parsed roadmap")
+                roadmap = json.loads(raw)
             except Exception as e:
-                print(f"✗ JSON parsing failed: {e}")
-                # Use fallback
-                roadmap = {
-                    "title": topic,
-                    "level": level,
-                    "phases": [
-                        {
-                            "phase": "Phase 1: Getting Started",
-                            "duration": "2-3 weeks",
-                            "topics": [
-                                "Learn the fundamentals",
-                                "Setup your environment",
-                                "Complete basic tutorials"
-                            ]
-                        },
-                        {
-                            "phase": "Phase 2: Building Foundation",
-                            "duration": "3-4 weeks",
-                            "topics": [
-                                "Practice core concepts",
-                                "Build small projects",
-                                "Study best practices"
-                            ]
-                        },
-                        {
-                            "phase": "Phase 3: Advanced Topics",
-                            "duration": "4-5 weeks",
-                            "topics": [
-                                "Explore advanced features",
-                                "Create real applications",
-                                "Learn debugging"
-                            ]
-                        },
-                        {
-                            "phase": "Phase 4: Mastery",
-                            "duration": "Ongoing",
-                            "topics": [
-                                "Contribute to community",
-                                "Keep learning new things",
-                                "Share your knowledge"
-                            ]
-                        }
-                    ]
-                }
-            
+                print("❌ JSON parse failed, using fallback:", e)
+                roadmap = self._fallback_roadmap(topic, level)
+
             # Ensure required fields
             roadmap.setdefault("title", topic)
             roadmap.setdefault("level", level)
-            
-            # Validate phases exist
+
             if "phases" not in roadmap or not roadmap["phases"]:
                 roadmap["phases"] = [
                     {
                         "phase": "Phase 1: Start Learning",
                         "duration": "2-3 weeks",
-                        "topics": ["Begin with basics", "Practice regularly", "Build confidence"]
+                        "topics": [
+                            "Begin with basics",
+                            "Practice regularly",
+                            "Build confidence",
+                        ],
                     }
                 ]
-            
-            # THE FIX: Wrap in "roadmap" key for frontend
+
             return {"roadmap": roadmap}, 200
-            
+
         except Exception as e:
-            print(f"=" * 60)
-            print(f"ERROR: {type(e).__name__}: {str(e)}")
+            print("=" * 60)
+            print(f"ROADMAP ERROR: {type(e).__name__}: {str(e)}")
             import traceback
             traceback.print_exc()
             print("=" * 60)
-            
-            # Return fallback with proper structure
-            return {
-                "roadmap": {
-                    "title": topic,
-                    "level": level,
-                    "phases": [
-                        {
-                            "phase": "Phase 1: Foundation",
-                            "duration": "2-3 weeks",
-                            "topics": [
-                                "Learn basic concepts",
-                                "Follow tutorials",
-                                "Practice daily"
-                            ]
-                        },
-                        {
-                            "phase": "Phase 2: Practice",
-                            "duration": "3-4 weeks",
-                            "topics": [
-                                "Build small projects",
-                                "Solve problems",
-                                "Review code"
-                            ]
-                        },
-                        {
-                            "phase": "Phase 3: Advanced",
-                            "duration": "4-5 weeks",
-                            "topics": [
-                                "Study advanced topics",
-                                "Create real apps",
-                                "Deploy projects"
-                            ]
-                        }
-                    ]
-                }
-            }, 200
+
+            return {"roadmap": self._fallback_roadmap(topic, level)}, 200
+
+    def _fallback_roadmap(self, topic, level):
+        return {
+            "title": topic,
+            "level": level,
+            "phases": [
+                {
+                    "phase": "Phase 1: Getting Started",
+                    "duration": "2-3 weeks",
+                    "topics": [
+                        "Learn the fundamentals",
+                        "Setup your environment",
+                        "Complete basic tutorials",
+                    ],
+                },
+                {
+                    "phase": "Phase 2: Building Foundation",
+                    "duration": "3-4 weeks",
+                    "topics": [
+                        "Practice core concepts",
+                        "Build small projects",
+                        "Study best practices",
+                    ],
+                },
+                {
+                    "phase": "Phase 3: Advanced Topics",
+                    "duration": "4-5 weeks",
+                    "topics": [
+                        "Explore advanced features",
+                        "Create real applications",
+                        "Learn debugging",
+                    ],
+                },
+                {
+                    "phase": "Phase 4: Mastery",
+                    "duration": "Ongoing",
+                    "topics": [
+                        "Contribute to community",
+                        "Keep learning new things",
+                        "Share your knowledge",
+                    ],
+                },
+            ],
+        }
+
 
 
 api.add_resource(RoadmapResource, "/api/roadmap")
