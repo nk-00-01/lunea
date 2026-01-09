@@ -1060,7 +1060,6 @@ class RoadmapResource(Resource):
         if not topic:
             return {"error": "Topic is required"}, 400
 
-        # Short prompt, structure enforced by schema + JSON mode
         prompt = (
             f"Create a {level} learning roadmap for {topic}.\n\n"
             "Rules:\n"
@@ -1084,7 +1083,7 @@ class RoadmapResource(Resource):
 
             raw = response.text or ""
             print("=" * 60)
-            print("RAW AI RESPONSE (roadmap JSON):")
+            print("RAW ROADMAP JSON:")
             print(raw)
             print("=" * 60)
 
@@ -1094,7 +1093,6 @@ class RoadmapResource(Resource):
                 print("❌ JSON parse failed, using fallback:", e)
                 roadmap = self._fallback_roadmap(topic, level)
 
-            # Ensure required fields
             roadmap.setdefault("title", topic)
             roadmap.setdefault("level", level)
 
@@ -1119,7 +1117,6 @@ class RoadmapResource(Resource):
             import traceback
             traceback.print_exc()
             print("=" * 60)
-
             return {"roadmap": self._fallback_roadmap(topic, level)}, 200
 
     def _fallback_roadmap(self, topic, level):
