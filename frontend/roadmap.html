@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>StudentAI - Roadmap Generator</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .falling-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .falling-container span {
+            position: absolute;
+            top: -50px;
+            font-size: 24px;
+            opacity: 0.15;
+            animation: fall linear infinite;
+        }
+
+        @keyframes fall {
+            to {
+                top: 110%;
+                transform: translateX(20px) rotate(360deg);
+            }
+        }
+
+        .falling-container span:nth-child(1) { left: 10%; animation-duration: 15s; animation-delay: 0s; }
+        .falling-container span:nth-child(2) { left: 20%; animation-duration: 18s; animation-delay: 2s; }
+        .falling-container span:nth-child(3) { left: 30%; animation-duration: 12s; animation-delay: 4s; }
+        .falling-container span:nth-child(4) { left: 40%; animation-duration: 20s; animation-delay: 1s; }
+        .falling-container span:nth-child(5) { left: 50%; animation-duration: 16s; animation-delay: 3s; }
+        .falling-container span:nth-child(6) { left: 60%; animation-duration: 14s; animation-delay: 5s; }
+        .falling-container span:nth-child(7) { left: 70%; animation-duration: 19s; animation-delay: 2s; }
+        .falling-container span:nth-child(8) { left: 80%; animation-duration: 17s; animation-delay: 4s; }
+        .falling-container span:nth-child(9) { left: 90%; animation-duration: 13s; animation-delay: 1s; }
+        .falling-container span:nth-child(10) { left: 15%; animation-duration: 21s; animation-delay: 6s; }
+
+        .navbar-glass {
+            background: rgba(2, 6, 23, 0.7);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .brand-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #10b981, #06b6d4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .input-glass {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .input-glass:focus {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: #10b981;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+
+        .generate-btn {
+            background: linear-gradient(135deg, #10b981, #06b6d4);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3);
+        }
+
+        .roadmap-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            animation: fadeInUp 0.5s ease forwards;
+            opacity: 0;
+        }
+
+        .roadmap-card:nth-child(1) { animation-delay: 0.1s; }
+        .roadmap-card:nth-child(2) { animation-delay: 0.2s; }
+        .roadmap-card:nth-child(3) { animation-delay: 0.3s; }
+        .roadmap-card:nth-child(4) { animation-delay: 0.4s; }
+        .roadmap-card:nth-child(5) { animation-delay: 0.5s; }
+        .roadmap-card:nth-child(6) { animation-delay: 0.6s; }
+
+        .phase-badge {
+            background: linear-gradient(135deg, #10b981, #06b6d4);
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .timeline-line {
+            position: absolute;
+            left: 1.5rem;
+            top: 3rem;
+            bottom: -2rem;
+            width: 2px;
+            background: linear-gradient(180deg, #10b981, #06b6d4);
+            opacity: 0.3;
+        }
+
+        .timeline-dot {
+            position: absolute;
+            left: 0.875rem;
+            top: 1.25rem;
+            width: 1.25rem;
+            height: 1.25rem;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #10b981, #06b6d4);
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .topic-item {
+            background: rgba(16, 185, 129, 0.1);
+            border-left: 3px solid #10b981;
+            transition: all 0.3s ease;
+        }
+
+        .topic-item:hover {
+            background: rgba(16, 185, 129, 0.2);
+            transform: translateX(5px);
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex flex-col bg-gradient-to-br from-[#020617] via-[#020617] to-[#042f2e] text-white">
+
+    <!-- SYMBOL BACKGROUND -->
+    <div class="falling-container">
+        <span>∑</span>
+        <span>π</span>
+        <span>√</span>
+        <span>📐</span>
+        <span>✏️</span>
+        <span>🖊️</span>
+        <span>E = mc²</span>
+        <span>∫</span>
+        <span>📏</span>
+        <span>θ</span>
+    </div>
+
+    <!-- NAVBAR -->
+    <nav class="navbar-glass px-6 md:px-12 py-5 flex justify-between items-center relative z-10">
+        <h2 class="brand-text">StudentAI</h2>
+        <div class="flex gap-6 md:gap-10 text-sm md:text-base">
+            <a href="dashboard.html" class="text-gray-300 hover:text-white transition">Dashboard</a>
+            <!-- <a href="" class="text-gray-300 hover:text-white transition">Roadmaps</a> -->
+        </div>
+    </nav>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 relative z-10 px-6 py-12">
+        <div class="max-w-6xl mx-auto">
+            
+            <!-- Header -->
+            <div class="text-center mb-12">
+                <h1 class="text-4xl md:text-5xl font-bold mb-4">
+                    <span class="bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
+                        AI Roadmap Generator
+                    </span>
+                </h1>
+                <p class="text-gray-400 text-lg">Tell us what you want to learn, and we'll create a personalized roadmap</p>
+            </div>
+
+            <!-- Input Section -->
+            <div class="max-w-3xl mx-auto mb-16">
+                <div class="input-glass rounded-2xl p-8">
+                    <label class="block text-sm font-medium text-gray-300 mb-3">What do you want to learn?</label>
+                    <input 
+                        type="text" 
+                        id="topicInput"
+                        placeholder="e.g., Web Development, Machine Learning, Data Science..."
+                        class="input-glass w-full px-6 py-4 rounded-xl text-white placeholder-gray-500"
+                    >
+                    
+                    <label class="block text-sm font-medium text-gray-300 mb-3 mt-6">Current Level (Optional)</label>
+                    <select id="levelSelect" class="input-glass w-full px-6 py-4 rounded-xl text-white">
+                        <option value="beginner">Beginner</option>
+                        <option value="intermediate">Intermediate</option>
+                        <option value="advanced">Advanced</option>
+                    </select>
+
+                    <button 
+                        onclick="generateRoadmap()"
+                        class="generate-btn w-full mt-8 py-4 rounded-xl font-semibold text-lg hover:shadow-lg"
+                    >
+                        <span id="btnText">Generate Roadmap 🎯</span>
+                        <span id="btnLoading" class="loading hidden"></span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Roadmap Display -->
+            <div id="roadmapContainer" class="hidden">
+                <div class="text-center mb-8">
+                    <h2 class="text-3xl font-bold mb-2">Your Learning Roadmap</h2>
+                    <p class="text-gray-400" id="roadmapTitle"></p>
+                </div>
+                <div id="roadmapContent" class="space-y-8 max-w-4xl mx-auto relative">
+                    <!-- Roadmap cards will be inserted here -->
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="text-center py-5 text-sm text-gray-400 relative z-10">
+        © 2025 StudentAI Dashboard
+    </footer>
+
+    <script>
+        
+
+        async function generateRoadmap() {
+    const topic = document.getElementById('topicInput').value.trim();
+    const level = document.getElementById('levelSelect').value;
+
+    if (!topic) {
+        alert("Please enter a topic");
+        return;
+    }
+
+    document.getElementById('btnText').classList.add('hidden');
+    document.getElementById('btnLoading').classList.remove('hidden');
+
+    try {
+        const res = await fetch("https://lunea-aoc1.onrender.com/api/roadmap", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: "Bearer " + localStorage.getItem("token")
+            },
+            body: JSON.stringify({ topic, level })
+        });
+
+        if (!res.ok) throw new Error("Failed to generate roadmap");
+
+        const data = await res.json();
+displayRoadmap(data.roadmap);
+
+
+    } catch (err) {
+        alert("Could not generate roadmap");
+        console.error(err);
+    } finally {
+        document.getElementById('btnText').classList.remove('hidden');
+        document.getElementById('btnLoading').classList.add('hidden');
+    }
+}
+
+
+        function displayRoadmap(data) {
+    const container = document.getElementById('roadmapContainer');
+    const content = document.getElementById('roadmapContent');
+    const title = document.getElementById('roadmapTitle');
+
+    title.textContent = `${data.title} - ${data.level.toUpperCase()} Level`;
+    content.innerHTML = "";
+
+    data.phases.forEach((phase, index) => {
+        const isLast = index === data.phases.length - 1;
+
+        const card = document.createElement("div");
+        card.className = "roadmap-card rounded-2xl p-8 relative";
+
+        card.innerHTML = `
+            ${!isLast ? '<div class="timeline-line"></div>' : ''}
+            <div class="timeline-dot"></div>
+            <div class="ml-12">
+                <span class="phase-badge">${phase.phase}</span>
+                <p class="text-gray-400 text-sm mt-2 mb-4">⏱️ ${phase.duration}</p>
+                <div class="space-y-3">
+                    ${phase.topics.map(t => `
+                        <div class="topic-item px-4 py-3 rounded-lg">
+                            ✓ ${t}
+                        </div>
+                    `).join("")}
+                </div>
+            </div>
+        `;
+
+        content.appendChild(card);
+    });
+
+    container.classList.remove("hidden");
+    container.scrollIntoView({ behavior: "smooth" });
+}
+
+    </script>
+
+</body>
+</html>
